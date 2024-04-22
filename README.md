@@ -17,23 +17,23 @@ This Django Project will be use for manage the storage of the FAMILINK's SAV
     Count_Conso INT  --> Number of object used. Need to be increment when we use object
     Date_Precedent_Batch DATE  --> Change when a batch of the item arrived
 
-    # TODO
+## TODO
 
-  ## Boutons
+  ### Boutons
   - Remettre la consommation instannée à 0 et la date à today de tous les éléments cochés
 
-  ## Automatisations
+  ### Automatisations
   - Créer automatiquement une consommation instantannée et historique lors de la création d'un nouveau type de stock
   - Lors de la diminution d'un stock, augmenter la conso et ajout 1 line par semaine dans l'historique
   - Lors d'un nouveau batch, remettre les consos à 0 et date à today/celle spécifiée
   
-  ## Tables
+  ### Tables
   - Stock
   - Conso
   - Batch
   - Historique des consommations
   
-  ## UI
+  ### UI
   - Visualiseur liste type stock
   - Visualiseur liste type conso
   - Visualiseur liste historique conso d'un type (grâce à menu déroulant)

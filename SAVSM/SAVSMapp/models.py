@@ -25,7 +25,7 @@ class BatchStock(models.Model):
 
 class BatchStockObject(models.Model):
     batch_stock = models.ForeignKey(BatchStock, on_delete=models.CASCADE)
-    object = models.ForeignKey(Object, on_delete=models.CASCADE)
+    object = models.ForeignKey(Object, on_delete=models.CASCADE, unique=True)
     count = models.IntegerField(default=0)
 
     def __str__(self):
@@ -34,7 +34,7 @@ class BatchStockObject(models.Model):
 
 class SAVStock(models.Model):
     id_SAVStock = models.AutoField(primary_key=True)
-    id_object = models.OneToOneField(Object, on_delete=models.CASCADE)
+    id_object = models.OneToOneField(Object, on_delete=models.CASCADE, unique=True)
     stock_Count = models.IntegerField(default=0)
 
     def __str__(self):
@@ -43,12 +43,13 @@ class SAVStock(models.Model):
 
 class SAVConso(models.Model):
     id_SAVConso = models.AutoField(primary_key=True)
-    id_object = models.ForeignKey(Object, on_delete=models.CASCADE)
+    id_object = models.ForeignKey(Object, on_delete=models.CASCADE, unique=True)
     conso_Count = models.IntegerField(default=0)
-    date_Precedent_Batch = models.ForeignKey(BatchStock, on_delete=models.CASCADE, null=True)
+    Batch = models.ForeignKey(BatchStock, on_delete=models.CASCADE, null=True, db_column='id_BatchStock', unique=True)  # Spécifier le nom de la colonne en base de données
 
     def __str__(self):
-        return f"{self.id_object.name if self.id_object else 'No Object', self.conso_Count, self.date_Precedent_Batch}"
+        batch_date = self.Batch.date if self.Batch else 'No Batch'  # Accéder à la date de l'objet BatchStock
+        return f"{self.id_object.name if self.id_object else 'No Object'}, {self.conso_Count}, {batch_date}"
 
 
 class ConsoHistory(models.Model):
@@ -65,7 +66,7 @@ class ConsoHistory(models.Model):
 
 class ConsoHistoryObject(models.Model):
     conso_history = models.ForeignKey(ConsoHistory, on_delete=models.CASCADE)
-    object = models.ForeignKey(Object, on_delete=models.CASCADE)
+    object = models.ForeignKey(Object, on_delete=models.CASCADE, unique=True)
     count = models.IntegerField(default=0)
 
     def __str__(self):

@@ -4,7 +4,7 @@ from django.utils import timezone
 
 class Object(models.Model):
     id_Object = models.AutoField(primary_key=True)
-    name = models.CharField(max_length=25)
+    name = models.CharField(max_length=25, unique=True)
     description = models.CharField(max_length=500, default="No description")
 
     def __str__(self):
@@ -13,7 +13,7 @@ class Object(models.Model):
 
 class BatchStock(models.Model):
     id_BatchStock = models.AutoField(primary_key=True)
-    name = models.CharField(max_length=50, null=True)
+    name = models.CharField(max_length=50, null=True, unique=True)
     objects = models.ManyToManyField(Object, through='BatchStockObject')  # Utilisation de through pour spécifier le modèle intermédiaire
     date = models.DateField(default=timezone.now)
 

@@ -13,6 +13,7 @@ class Object(models.Model):
 
 class BatchStock(models.Model):
     id_BatchStock = models.AutoField(primary_key=True)
+    name = models.CharField(max_length=50, null=True)
     objects = models.ManyToManyField(Object, through='BatchStockObject')  # Utilisation de through pour spécifier le modèle intermédiaire
     date = models.DateField(default=timezone.now)
 
@@ -20,7 +21,7 @@ class BatchStock(models.Model):
         object_counts = ", ".join(
             [f"{batch_stock_object.object.name} ({batch_stock_object.count})" for batch_stock_object in
              self.batchstockobject_set.all()])
-        return f"BatchStock {self.id_BatchStock}: {object_counts}"
+        return f"{self.name}: {object_counts}"
 
 
 class BatchStockObject(models.Model):

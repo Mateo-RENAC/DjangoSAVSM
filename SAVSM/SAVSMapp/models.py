@@ -10,6 +10,10 @@ class Object(models.Model):
     def __str__(self):
         return f"{self.name} - {self.description}"
 
+    class Meta:
+        verbose_name = "Object"
+        verbose_name_plural = "Object"
+
 
 class BatchStock(models.Model):
     id_BatchStock = models.AutoField(primary_key=True)
@@ -23,6 +27,10 @@ class BatchStock(models.Model):
              self.batchstockobject_set.all()])
         return f"{self.name}: {object_counts}"
 
+    class Meta:
+        verbose_name = "BatchStock"
+        verbose_name_plural = "BatchStock"
+
 
 class BatchStockObject(models.Model):
     batch_stock = models.ForeignKey(BatchStock, on_delete=models.CASCADE)
@@ -31,6 +39,10 @@ class BatchStockObject(models.Model):
 
     def __str__(self):
         return f"{self.batch_stock} - {self.object} ({self.count})"
+
+    class Meta:
+        verbose_name = "BatchStockObject"
+        verbose_name_plural = "BatchStockObject"
 
 
 class SAVStock(models.Model):
@@ -41,16 +53,24 @@ class SAVStock(models.Model):
     def __str__(self):
         return f"{self.id_object.name if self.id_object else 'No Object', str(self.stock_Count)}"
 
+    class Meta:
+        verbose_name = "SAVStock"
+        verbose_name_plural = "SAVStock"
+
 
 class SAVConso(models.Model):
     id_SAVConso = models.AutoField(primary_key=True)
-    id_object = models.ForeignKey(Object, on_delete=models.CASCADE, unique=True)                                        #On peut laisser True, normalement a chaque nouveau Batch, les count sont remis à 0
+    id_object = models.ForeignKey(Object, on_delete=models.CASCADE)
     conso_Count = models.IntegerField(default=0)
     Batch = models.ForeignKey(BatchStock, on_delete=models.CASCADE, null=True, db_column='id_BatchStock')
 
     def __str__(self):
         batch_date = self.Batch.date if self.Batch else 'No Batch'  # Accéder à la date de l'objet BatchStock
         return f"{self.id_object.name if self.id_object else 'No Object'}, {self.conso_Count}, {batch_date}"
+
+    class Meta:
+        verbose_name = "SAVConso"
+        verbose_name_plural = "SAVConso"
 
 
 class ConsoHistory(models.Model):
@@ -64,6 +84,10 @@ class ConsoHistory(models.Model):
              self.consohistoryobject_set.all()])
         return f"ConsoHistory {self.id_ConsoHistory}: {object_counts}"
 
+    class Meta:
+        verbose_name = "ConsoHistory"
+        verbose_name_plural = "ConsoHistory"
+
 
 class ConsoHistoryObject(models.Model):
     conso_history = models.ForeignKey(ConsoHistory, on_delete=models.CASCADE)
@@ -72,3 +96,7 @@ class ConsoHistoryObject(models.Model):
 
     def __str__(self):
         return f"{self.conso_history} - {self.object} ({self.count})"
+
+    class Meta:
+        verbose_name = "ConsoHistoryObject"
+        verbose_name_plural = "ConsoHistoryObject"

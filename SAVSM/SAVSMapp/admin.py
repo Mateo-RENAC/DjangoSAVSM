@@ -56,7 +56,7 @@ class BatchStockAdmin(admin.ModelAdmin):
     Admin interface for BatchStock
     '''
     list_display = ('name', 'batchstock_objects', 'date')
-    search_fields = ('name__name', 'batchstockobject__object__name',)
+    search_fields = ('name',)
 
     def batchstock_objects(self, obj):
         '''

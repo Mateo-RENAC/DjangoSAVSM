@@ -44,9 +44,9 @@ class SAVStock(models.Model):
 
 class SAVConso(models.Model):
     id_SAVConso = models.AutoField(primary_key=True)
-    id_object = models.ForeignKey(Object, on_delete=models.CASCADE, unique=True)
+    id_object = models.ForeignKey(Object, on_delete=models.CASCADE, unique=True)                                        #On peut laisser True, normalement a chaque nouveau Batch, les count sont remis à 0
     conso_Count = models.IntegerField(default=0)
-    Batch = models.ForeignKey(BatchStock, on_delete=models.CASCADE, null=True, db_column='id_BatchStock', unique=True)  # Spécifier le nom de la colonne en base de données
+    Batch = models.ForeignKey(BatchStock, on_delete=models.CASCADE, null=True, db_column='id_BatchStock')
 
     def __str__(self):
         batch_date = self.Batch.date if self.Batch else 'No Batch'  # Accéder à la date de l'objet BatchStock
@@ -67,7 +67,7 @@ class ConsoHistory(models.Model):
 
 class ConsoHistoryObject(models.Model):
     conso_history = models.ForeignKey(ConsoHistory, on_delete=models.CASCADE)
-    object = models.ForeignKey(Object, on_delete=models.CASCADE, unique=True)
+    object = models.ForeignKey(Object, on_delete=models.CASCADE)
     count = models.IntegerField(default=0)
 
     def __str__(self):

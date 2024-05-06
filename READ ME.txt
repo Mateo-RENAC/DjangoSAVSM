@@ -1,18 +1,54 @@
 Service Après-Vente Storage Manager (SAVSM)
 
 This Django Project will be use for manage the storage of the FAMILINK's SAV
-With 2 Database Table :
-    -SAV Storage
-    -SAV Conso
+With 7 Database Table :
+
+    "Object" Type Database :
+        -Object
+        -BatchStockObject
+        -ConsoHistoryObject
+
+    "Normal" Type Database
+        -SAV Stock
+        -SAV Conso
+        -ConsoHistory
+        -BatchStock
 
 
-    TABLE SAV Storage
-    #id_Stock_SAV INT AUTOINCREMENT --> Id AutoIncrement identify object
-    Name Varchar(25)  --> Name : letter and number, identify object
-    Count_Stock INT  --> Number of object in storage. Need to be increment when we received stock and Un-increment when we use an object
+    TABLE SAV Stock
+        -#id_SAVStock INT AUTOINCREMENT --> identify the line (primary Key)
+        -//id_object OneToOneField --> Link with the Table Object
+        -Count_Stock INT  --> Number of object in storage. Need to be increment when we received stock and Un-increment when we use an object
 
     TABLE SAV Conso
-    #FK_id_SAV_Conso INT AUTOINCREMENT --> Foreign Key of id_Stock_SAV in SAV Storage Table and primary key of SAV Conso Table
-    Name Varchar(25)  --> Foreign Key of Name from SAV Storage Table
-    Count_Conso INT  --> Number of object used. Need to be increment when we use object
-    Date_Precedent_Batch DATE  --> Change when a batch of the item arrived
+        -#id_SAVConso INT AUTOINCREMENT --> identify the line (primary key)
+        -//id_object ForeignKey --> Link with the Table Object
+        -conso_Count INT  --> Number of object used. Need to be increment when we use object
+        -Batch  --> Link with the Table BatchStock
+
+    TABLE ConsoHistory
+        -#id_ConsoHistory INT AUTOINCREMENT --> identify the line (primary key)
+        -objects ManyToManyFeild --> Link with ConsoHistoryObject
+        -date_Conso_History DateField --> When the ConsoHistory have been saved
+
+    Table BatchStock
+        -#id_BatchStock INT AUTOINCREMENT --> identify the line (primary key)
+        -name CharField(50) --> BatchStock Name
+        -//objects ManyToManyField --> Link with Object of the BatchStockObject
+        -date DateField --> Date when the BatchStock is arrived
+
+
+    Table Object
+        -#id_Object INT AUTOINCREMENT --> identify the line (primary key)
+        -name CharField(25) --> Name of the Object
+        -description CharField(500) --> Describe the object
+
+    TABLE BatchStockObject
+        -//batch_stock ForeignKey --> Link with BatchStock
+        -//object ForeignKey --> Link with Object
+        -count IntegerField(=0) --> How many of the object have been delivered
+
+    TABLE ConsoHistoryObject
+        -//conso_history ForeignKey --> Link with ConsoHistory
+        -//object ForeignKey --> Link with Object
+        -count IntegerField(0) --> How many Object have been used ?

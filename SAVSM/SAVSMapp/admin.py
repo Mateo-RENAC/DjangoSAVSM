@@ -25,27 +25,17 @@ class SAVConsoAdmin(admin.ModelAdmin):
     '''
     Admin interface for SAVConso
     '''
-    list_display = ('object_name', 'conso_Count', 'batch_date')  # Champs qui s'affiche dans la liste
-    list_filter = ('Batch__date',)  # Filtre par date de batch
-    search_fields = ('id_object__name',)  # Champ de recherche par nom d'objet
+    list_display = ('object_name', 'conso_Count', 'date')  # Fields displayed in the list
+    list_filter = ('date',)  # Filter by date
+    search_fields = ('id_object__name',)  # Search field by object name
 
     def object_name(self, obj):
         '''
         Return object name
-        :param obj:
-        :return: str
         '''
-        return obj.id_object.name  # Champ personnalisé pour le nom de l'objet dans l'admin
-    object_name.short_description = 'Name'  # Titre du champ dans l'admin
+        return obj.id_object.name
 
-    def batch_date(self, obj):
-        '''
-        return Batch date
-        :param obj:
-        :return: date
-        '''
-        return obj.Batch.date if obj.Batch else 'No Batch'
-    batch_date.short_description = 'Date'
+    object_name.short_description = 'Name'
 
 
 admin.site.register(SAVConso, SAVConsoAdmin)

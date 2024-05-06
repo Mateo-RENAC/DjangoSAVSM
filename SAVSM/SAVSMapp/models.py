@@ -62,11 +62,14 @@ class SAVConso(models.Model):
     id_SAVConso = models.AutoField(primary_key=True)
     id_object = models.ForeignKey(Object, on_delete=models.CASCADE)
     conso_Count = models.IntegerField(default=0)
-    Batch = models.ForeignKey(BatchStock, on_delete=models.CASCADE, null=True, db_column='id_BatchStock')
+    date = models.DateField(default=timezone.now())
 
     def __str__(self):
-        batch_date = self.Batch.date if self.Batch else 'No Batch'  # Accéder à la date de l'objet BatchStock
-        return f"{self.id_object.name if self.id_object else 'No Object'}, {self.conso_Count}, {batch_date}"
+        return f"{self.id_object.name if self.id_object else 'No Object'}, {self.conso_Count}, {self.date}"
+
+    def __init__(self, *args, **kwargs):
+        super(SAVConso, self).__init__(*args, **kwargs)
+        self._conso_Count = self.conso_Count
 
     class Meta:
         verbose_name = "SAVConso"
@@ -77,12 +80,18 @@ class ConsoHistory(models.Model):
     id_ConsoHistory = models.AutoField(primary_key=True)
     objects = models.ManyToManyField(Object, through='ConsoHistoryObject')
     date_Conso_History = models.DateField(default=timezone.now)
+    object_counts = models.TextField(default="")  # Ajoutez ce champ
+
+    def add_object(self, conso_history_object):
+        self.object_counts += f"{conso_history_object.object.name} ({conso_history_object.count}), "
+        self.save()
 
     def __str__(self):
-        object_counts = ", ".join(
-            [f"{conso_history_object.object.name} ({conso_history_object.count})" for conso_history_object in
-             self.consohistoryobject_set.all()])
-        return f"ConsoHistory {self.id_ConsoHistory}: {object_counts}"
+        return f"ConsoHistory {self.id_ConsoHistory}: {self.object_counts}"
+
+    def update_count(self):
+        self.count_History = SAVConso.objects.filter(id_object=self.object).aggregate(Sum('conso_Count'))['conso_Count__sum']
+        self.save()
 
     class Meta:
         verbose_name = "ConsoHistory"
@@ -100,3 +109,30 @@ class ConsoHistoryObject(models.Model):
     class Meta:
         verbose_name = "ConsoHistoryObject"
         verbose_name_plural = "ConsoHistoryObject"
+
+
+
+
+
+
+
+#def signals (permet d'automatiser certaines choses sur les models)
+from django.dispatch import receiver
+from django.db.models.signals import post_save
+
+
+@receiver(post_save, sender=SAVConso)
+def update_SAVStock(sender, instance, created, **kwargs):
+        try:
+            increment_amount = instance.conso_Count
+            sav_stock = SAVStock.objects.get(id_object=instance.id_object)
+            print(increment_amount)
+            sav_stock.stock_Count -= increment_amount
+            sav_stock.save()
+        except SAVStock.DoesNotExist:
+            print("Je n'ai rien fait")
+            pass
+
+
+
+

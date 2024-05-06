@@ -1,5 +1,6 @@
 from django.db import models
 from django.utils import timezone
+from django.db.models import Sum
 
 
 class Object(models.Model):
@@ -78,38 +79,45 @@ class SAVConso(models.Model):
 
 class ConsoHistory(models.Model):
     id_ConsoHistory = models.AutoField(primary_key=True)
-    objects = models.ManyToManyField(Object, through='ConsoHistoryObject')
     date_Conso_History = models.DateField(default=timezone.now)
-    object_counts = models.TextField(default="")  # Ajoutez ce champ
 
-    def add_object(self, conso_history_object):
-        self.object_counts += f"{conso_history_object.object.name} ({conso_history_object.count}), "
+    def update_counts(self):
+        conso_objects = ConsoHistoryObject.objects.filter(conso_history=self)
+        object_counts = {obj.id: obj.count for obj in conso_objects}
+        for obj_id, count in object_counts.items():
+            setattr(self, f"count_{obj_id}", count)
         self.save()
 
     def __str__(self):
-        return f"ConsoHistory {self.id_ConsoHistory}: {self.object_counts}"
-
-    def update_count(self):
-        self.count_History = SAVConso.objects.filter(id_object=self.object).aggregate(Sum('conso_Count'))['conso_Count__sum']
-        self.save()
+        object_counts = ', '.join([f"{field.name}: {getattr(self, field.name)}" for field in self._meta.fields if field.name.startswith('count_')])
+        return f"ConsoHistory {self.id_ConsoHistory} - Date: {self.date_Conso_History}, Counts: {object_counts}"
 
     class Meta:
         verbose_name = "ConsoHistory"
         verbose_name_plural = "ConsoHistory"
 
 
+
 class ConsoHistoryObject(models.Model):
-    conso_history = models.ForeignKey(ConsoHistory, on_delete=models.CASCADE)
-    object = models.ForeignKey(Object, on_delete=models.CASCADE)
+    conso_history = models.ForeignKey('ConsoHistory', on_delete=models.CASCADE)
+    object = models.ForeignKey('Object', on_delete=models.CASCADE)
     count = models.IntegerField(default=0)
 
+    def save(self, *args, **kwargs):
+        # Calculate the total count for this object from SAVConso
+        total_count = SAVConso.objects.filter(id_object=self.object).aggregate(total=Sum('conso_Count'))['total']
+        if total_count is not None:
+            self.count = total_count
+        else:
+            self.count = 0
+        super().save(*args, **kwargs)
+
     def __str__(self):
-        return f"{self.conso_history} - {self.object} ({self.count})"
+        return f"{self.object.name} ({self.count})"
 
     class Meta:
         verbose_name = "ConsoHistoryObject"
-        verbose_name_plural = "ConsoHistoryObject"
-
+        verbose_name_plural = "ConsoHistoryObjects"
 
 
 
@@ -132,7 +140,4 @@ def update_SAVStock(sender, instance, created, **kwargs):
         except SAVStock.DoesNotExist:
             print("Je n'ai rien fait")
             pass
-
-
-
 

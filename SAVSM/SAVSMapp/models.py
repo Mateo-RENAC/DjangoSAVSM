@@ -141,3 +141,9 @@ def update_SAVStock(sender, instance, created, **kwargs):
             print("Je n'ai rien fait")
             pass
 
+
+@receiver(post_save, sender=Object)
+def create_sav_stock_entry(sender, instance, created, **kwargs):
+    if created:
+        # Créer une nouvelle entrée dans SAVStock avec le nouvel objet
+        SAVStock.objects.create(id_object=instance, stock_Count=0)

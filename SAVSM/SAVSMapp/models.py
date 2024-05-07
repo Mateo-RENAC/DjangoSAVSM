@@ -126,20 +126,30 @@ class ConsoHistoryObject(models.Model):
 
 #def signals (permet d'automatiser certaines choses sur les models)
 from django.dispatch import receiver
-from django.db.models.signals import post_save
+from django.db.models.signals import post_save, pre_save
 
 
-@receiver(post_save, sender=SAVConso)
-def update_SAVStock(sender, instance, created, **kwargs):
+@receiver(pre_save, sender=SAVConso)
+def update_SAVStock(sender, instance, **kwargs):
+    new_amount = instance.conso_Count  # This is the amount being saved now
+    variation_amount = new_amount  # Default to new_amount for new records
+    if instance.id_SAVConso:
+        # The object exists, we are updating it
         try:
-            increment_amount = instance.conso_Count
-            sav_stock = SAVStock.objects.get(id_object=instance.id_object)
-            print(increment_amount)
-            sav_stock.stock_Count -= increment_amount
-            sav_stock.save()
-        except SAVStock.DoesNotExist:
-            print("Je n'ai rien fait")
-            pass
+            last_object = SAVConso.objects.get(id_SAVConso=instance.id_SAVConso)
+            last_amount = last_object.conso_Count
+            variation_amount = new_amount - last_amount  # Calculate the difference
+        except SAVConso.DoesNotExist:
+            # Log this as a critical error; should never happen since instance.id is present
+            print("Critical error: Object exists but could not be retrieved.")
+    # Apply the variation to the related stock
+    try:
+        sav_stock = SAVStock.objects.get(id_object=instance.id_object)
+        sav_stock.stock_Count -= variation_amount
+        sav_stock.save()
+    except SAVStock.DoesNotExist:
+        # Handle the case where the corresponding stock doesn't exist
+        print("Stock record does not exist, cannot update stock.")
 
 
 @receiver(post_save, sender=Object)
@@ -147,3 +157,57 @@ def create_sav_stock_entry(sender, instance, created, **kwargs):
     if created:
         # Créer une nouvelle entrée dans SAVStock avec le nouvel objet
         SAVStock.objects.create(id_object=instance, stock_Count=0)
+
+
+@receiver(post_save, sender=Object)
+def create_sav_conso_entry(sender, instance, created, **kwargs):
+    if created:
+        # Créer une nouvelle entrée dans SAVConso avec le nouvel objet
+        SAVConso.objects.create(id_object=instance, conso_Count=0)
+
+
+
+@receiver(post_save, sender=BatchStock)
+def create_BatchStock_and_BatchStockObject_entry(sender, instance, created, **kwargs):
+    if created:
+        # Obtenez tous les objets disponibles
+        objects = Object.objects.all()
+        # Pour chaque objet, créez une entrée BatchStockObject avec count initial à 0
+        for obj in objects:
+            BatchStockObject.objects.create(batch_stock=instance, object=obj, count=0)
+
+
+@receiver(pre_save, sender=BatchStockObject)
+def update_previous_count(sender, instance, **kwargs):                                                                  #Ce signal est bien une abérration mais on en a besoin car les objets
+    # Récupérer l'instance existante depuis la base de données                                                          #dans un BatchStock sont directement considéré comme étant présent 0x
+    if instance.pk:
+        instance._original_instance = sender.objects.get(pk=instance.pk)
+
+
+@receiver(post_save, sender=BatchStockObject)
+def update_SAVStock(sender, instance, created, **kwargs):
+    if created:
+        # Obtenir l'entrée correspondante dans SAVStock pour cet objet
+        try:
+            sav_stock = SAVStock.objects.get(id_object=instance.object)
+        except SAVStock.DoesNotExist:
+            # Si l'entrée correspondante n'existe pas, créez-la
+            sav_stock = SAVStock.objects.create(id_object=instance.object, stock_Count=0)
+
+        # Ajouter le count du BatchStockObject au stock_Count de SAVStock
+        sav_stock.stock_Count += instance.count
+        sav_stock.save()
+    else:
+        # Si le BatchStockObject existant est modifié, ajustez le stock_Count en conséquence
+        try:
+            sav_stock = SAVStock.objects.get(id_object=instance.object)
+            # Obtenez la valeur précédente du count avant la modification
+            previous_count = instance._original_instance.count
+            # Calculer la variation de stock
+            variation_amount = instance.count - previous_count
+            sav_stock.stock_Count += variation_amount
+            sav_stock.save()
+        except SAVStock.DoesNotExist:
+            # Gérer le cas où l'entrée correspondante n'existe pas
+            print("Stock record does not exist, cannot update stock.")
+

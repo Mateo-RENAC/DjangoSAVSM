@@ -63,7 +63,7 @@ class SAVConso(models.Model):
     id_SAVConso = models.AutoField(primary_key=True)
     id_object = models.ForeignKey(Object, on_delete=models.CASCADE)
     conso_Count = models.IntegerField(default=0)
-    date = models.DateField(default=timezone.now())
+    date = models.DateField(default=timezone.now())                                                                     #I have forgot why this date is here ?
 
     def __str__(self):
         return f"{self.id_object.name if self.id_object else 'No Object'}, {self.conso_Count}, {self.date}"

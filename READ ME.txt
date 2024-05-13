@@ -24,11 +24,10 @@ With 7 Database Table :
         -#id_SAVConso INT AUTOINCREMENT --> identify the line (primary key)
         -//id_object ForeignKey --> Link with the Table Object
         -conso_Count INT  --> Number of object used. Need to be increment when we use object
-        -Batch  --> Link with the Table BatchStock
+        -Date  --> I have forgot why this date is use
 
     TABLE ConsoHistory
         -#id_ConsoHistory INT AUTOINCREMENT --> identify the line (primary key)
-        -objects ManyToManyFeild --> Link with ConsoHistoryObject
         -date_Conso_History DateField --> When the ConsoHistory have been saved
 
     Table BatchStock
@@ -52,3 +51,26 @@ With 7 Database Table :
         -//conso_history ForeignKey --> Link with ConsoHistory
         -//object ForeignKey --> Link with Object
         -count IntegerField(0) --> How many Object have been used ?
+
+
+
+Theses Data bases is linked with signals and permit more automation :
+
+    -update_SAVStock() --> (pre_save) This signal update the SAVStock when
+    we use an object in SAVConso (reduce the count of SAVStock)
+
+    -create_sav_stock_entry() --> (post_save) when we create new object in the table object.
+    It created in the table SAVStock too with a count of 0
+
+    -create_sav_conso_entry() --> (post_save) like create_sav_stock_entry but in the Table
+    SAVConso
+
+    -create_BatchStock_and_BatchStockObject_entry() --> (post_save) when we create an new BatchStock
+    all existent object is created in BatchStockObject Table with an count of 0
+
+    -update_previous_count() --> (pre_save) I have forgotten why I use this signal, but it's with BatchStockObject.
+    maybe for security when we change the count (yes because when a BatchStock
+    is created that fill the count with the objects in SAVStock)
+
+    -update_SAVStock() --> (post_save) This is the signals that update SAVStock when a new BatchStock is here
+    and create new object if unknown object is in (maybe I should deactivate this...)

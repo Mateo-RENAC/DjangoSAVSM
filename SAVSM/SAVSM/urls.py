@@ -22,5 +22,6 @@ from SAVSMapp.views import *
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('graph/', chart),
+    path('ConsoGraph/', chart),
+    path('StockGraph/', stock_chart),
 ]

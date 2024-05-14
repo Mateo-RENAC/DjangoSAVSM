@@ -1,5 +1,6 @@
 from django.shortcuts import render
-from .models import ConsoHistory, ConsoHistoryObject, Object
+from .models import ConsoHistory, ConsoHistoryObject, Object, SAVStock
+
 
 def chart(request):
     # Récupérer toutes les instances de ConsoHistory
@@ -27,4 +28,23 @@ def chart(request):
         'counts_per_object': counts_per_object,
     }
 
-    return render(request, 'Graph.html', context)
+    return render(request, 'GraphConso.html', context)
+
+
+
+from .models import SAVStock
+
+def stock_chart(request):
+    # Retrieve all instances of SAVStock
+    stocks = SAVStock.objects.all()
+
+    # Extract object names and their corresponding stock counts
+    object_names = [stock.id_object.name for stock in stocks]
+    stock_counts = [stock.stock_Count for stock in stocks]
+
+    context = {
+        'object_names': object_names,
+        'stock_counts': stock_counts,
+    }
+
+    return render(request, 'GraphStock.html', context)

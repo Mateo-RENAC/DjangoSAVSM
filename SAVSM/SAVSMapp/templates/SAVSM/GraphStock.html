@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Stock Chart</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+    <div>
+    <canvas id="stockChart"></canvas>
+    <script>
+        var ctx = document.getElementById('stockChart').getContext('2d');
+        var objectNames = {{ object_names|safe }};
+        var stockCounts = {{ stock_counts|safe }};
+        var datasets = objectNames.map((name, index) => ({
+            label: name,
+            data: Array(objectNames.length).fill(null).map((_, idx) => idx === index ? stockCounts[index] : null),
+            backgroundColor: 'rgba(54, 162, 235, 0.2)',
+            borderColor: 'rgba(54, 162, 235, 1)',
+            borderWidth: 1,
+        }));
+        var myChart = new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: objectNames,
+                datasets: datasets
+            },
+            options: {
+                scales: {
+                    y: {
+                        beginAtZero: true
+                    }
+                },
+                plugins: {
+                    legend: {
+                        onClick: function (e, legendItem, legend) {
+                            var index = legendItem.datasetIndex;
+                            var ci = legend.chart;
+                            if (ci.isDatasetVisible(index)) {
+                                ci.hide(index);
+                                legendItem.hidden = true;
+                            } else {
+                                ci.show(index);
+                                legendItem.hidden = false;
+                            }
+                        }
+                    }
+                }
+            }
+        });
+    </script>
+    </div>
+</body>
+</html>

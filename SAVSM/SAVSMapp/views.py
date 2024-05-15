@@ -53,11 +53,14 @@ def stock_chart(request):
 from django.http import HttpResponse
 from reportlab.lib.pagesizes import letter
 from reportlab.lib.units import inch
-from reportlab.platypus import SimpleDocTemplate, Table, TableStyle, Image, Paragraph
+from reportlab.platypus import SimpleDocTemplate, Table, TableStyle, Image, Paragraph, PageBreak
 from reportlab.lib import colors
 from io import BytesIO
 from reportlab.lib.enums import TA_CENTER
 from reportlab.lib.styles import getSampleStyleSheet
+from reportlab.graphics.shapes import Drawing
+from reportlab.graphics.charts.barcharts import VerticalBarChart
+
 
 def generate_pdf_Stock(request):
     response = HttpResponse(content_type='application/pdf')
@@ -87,26 +90,58 @@ def generate_pdf_Stock(request):
     title_style.spaceAfter = 20
     elements.append(Paragraph('FAMILINK SAV STOCK', title_style))
 
+    # Define the maximum number of items per page
+    items_per_page = 5
+
     # Fetch SAVStock data
     sav_stocks = SAVStock.objects.all()
 
-    # Prepare data for a table
-    data = [['Name', 'Count']]
-    for sav_stock in sav_stocks:
-        data.append([sav_stock.id_object, sav_stock.stock_Count])
+    # Divide the data into subsets for each page
+    pages = [sav_stocks[i:i + items_per_page] for i in range(0, len(sav_stocks), items_per_page)]
 
-    # Create a table with style
-    table_style = TableStyle([
-        ('BACKGROUND', (0, 0), (-1, 0), colors.grey),
-        ('TEXTCOLOR', (0, 0), (-1, 0), colors.whitesmoke),
-        ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
-        ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
-        ('BOTTOMPADDING', (0, 0), (-1, 0), 12),
-        ('BACKGROUND', (0, 1), (-1, -1), colors.beige),
-        ('GRID', (0, 0), (-1, -1), 1, colors.black)
-    ])
-    t = Table(data, style=table_style)
-    elements.append(t)
+    for page in pages:
+        # Prepare data for a chart
+        chart_data = [sav_stock.stock_Count for sav_stock in page]
+        chart_labels = [str(sav_stock.id_object.name.split(' - ')[0]) for sav_stock in page]
+
+        # Create a bar chart
+        drawing = Drawing(400, 200)
+        chart = VerticalBarChart()
+        chart.x = 50
+        chart.y = 50
+        chart.height = 125
+        chart.width = 300
+        chart.data = [chart_data]
+        chart.categoryAxis.categoryNames = chart_labels
+
+        # Set the minimum limit of y-axis to 0
+        chart.valueAxis.valueMin = 0
+
+        drawing.add(chart)
+
+        # Add the chart to the elements
+        elements.append(drawing)
+
+        # Create a table with style
+        table_style = TableStyle([
+            ('BACKGROUND', (0, 0), (-1, 0), colors.grey),
+            ('TEXTCOLOR', (0, 0), (-1, 0), colors.whitesmoke),
+            ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
+            ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
+            ('BOTTOMPADDING', (0, 0), (-1, 0), 12),
+            ('BACKGROUND', (0, 1), (-1, -1), colors.beige),
+            ('GRID', (0, 0), (-1, -1), 1, colors.black)
+        ])
+
+        # Add the table for this page
+        data = [['Name', 'Count']]
+        for sav_stock in page:
+            data.append([sav_stock.id_object, sav_stock.stock_Count])
+        t = Table(data, style=table_style)
+        elements.append(t)
+
+        # Add a page break
+        elements.append(PageBreak())
 
     # Build the PDF
     p.build(elements)
@@ -146,26 +181,55 @@ def generate_pdf_Conso(request):
     title_style.spaceAfter = 20
     elements.append(Paragraph('FAMILINK SAV Conso', title_style))
 
+    # Define the maximum number of items per page
+    items_per_page = 5
+
     # Fetch SAVStock data
     sav_consos = SAVConso.objects.all()
 
-    # Prepare data for a table
-    data = [['Name', 'Count']]
-    for sav_conso in sav_consos:
-        data.append([sav_conso.id_object, sav_conso.conso_Count])
+    # Divide the data into subsets for each page
+    pages = [sav_consos[i:i + items_per_page] for i in range(0, len(sav_consos), items_per_page)]
 
-    # Create a table with style
-    table_style = TableStyle([
-        ('BACKGROUND', (0, 0), (-1, 0), colors.grey),
-        ('TEXTCOLOR', (0, 0), (-1, 0), colors.whitesmoke),
-        ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
-        ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
-        ('BOTTOMPADDING', (0, 0), (-1, 0), 12),
-        ('BACKGROUND', (0, 1), (-1, -1), colors.beige),
-        ('GRID', (0, 0), (-1, -1), 1, colors.black)
-    ])
-    t = Table(data, style=table_style)
-    elements.append(t)
+    for page in pages:
+        # Prepare data for a chart
+        chart_data = [sav_stock.conso_Count for sav_stock in page]
+        chart_labels = [str(sav_stock.id_object.name.split(' - ')[0]) for sav_stock in page]
+
+        # Create a bar chart
+        drawing = Drawing(400, 200)
+        chart = VerticalBarChart()
+        chart.x = 50
+        chart.y = 50
+        chart.height = 125
+        chart.width = 300
+        chart.data = [chart_data]
+        chart.categoryAxis.categoryNames = chart_labels
+
+        # Set the minimum limit of y-axis to 0
+        chart.valueAxis.valueMin = 0
+
+        drawing.add(chart)
+
+        # Add the chart to the elements
+        elements.append(drawing)
+
+        # Create a table with style
+        table_style = TableStyle([
+            ('BACKGROUND', (0, 0), (-1, 0), colors.grey),
+            ('TEXTCOLOR', (0, 0), (-1, 0), colors.whitesmoke),
+            ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
+            ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
+            ('BOTTOMPADDING', (0, 0), (-1, 0), 12),
+            ('BACKGROUND', (0, 1), (-1, -1), colors.beige),
+            ('GRID', (0, 0), (-1, -1), 1, colors.black)
+        ])
+
+        # Add the table for this page
+        data = [['Name', 'Count']]
+        for sav_consos in page:
+            data.append([sav_consos.id_object, sav_consos.conso_Count])
+        t = Table(data, style=table_style)
+        elements.append(t)
 
     # Build the PDF
     p.build(elements)

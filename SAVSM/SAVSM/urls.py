@@ -19,12 +19,12 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path
 from SAVSMapp.views import *
-from SAVSMapp.views import generate_pdf
+from SAVSMapp.views import generate_pdf_Stock, generate_pdf_Conso
 
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('ConsoGraph/', chart),
     path('StockGraph/', stock_chart),
-    path('generate_pdf/', generate_pdf, name='generate_pdf'),
-
+    path('pdf_Stock/', generate_pdf_Stock, name='generate_pdf_Stock'),
+    path('pdf_Conso', generate_pdf_Conso, name='generate_pdf_Conso'),
 ]

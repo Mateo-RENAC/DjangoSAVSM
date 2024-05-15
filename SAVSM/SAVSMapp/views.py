@@ -48,3 +48,31 @@ def stock_chart(request):
     }
 
     return render(request, 'GraphStock.html', context)
+
+#Import Reportlab method
+from django.http import HttpResponse
+from reportlab.pdfgen import canvas
+
+
+def generate_pdf(request):
+    response = HttpResponse(content_type='application/pdf')
+    response['Content-Disposition'] = 'attachment; filename="sav_stock.pdf"'
+
+    # Create a PDF object
+    p = canvas.Canvas(response)
+
+    # Fetch SAVStock data
+    sav_stocks = SAVStock.objects.all()
+
+    # Write data to PDF
+    y = 750  # Initial y-coordinate
+    for sav_stock in sav_stocks:
+        p.drawString(100, y, str(sav_stock.id_object))
+        p.drawString(300, y, str(sav_stock.stock_Count))
+        y -= 20
+
+    # Close the PDF object
+    p.showPage()
+    p.save()
+
+    return response

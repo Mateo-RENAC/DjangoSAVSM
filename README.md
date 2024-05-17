@@ -92,20 +92,60 @@ Theses Data bases is linked with signals and permit more automation :
     
     python manage.py makemigrations panel
     python manage.py migrate
-    python manage.py createsuperuser
     python manage.py runserver
+
+OR
+
+    ./scripts/install.bat
+    ./scripts/run.bat
+
+    sh scripts/install.sh
+    sh scripts/run.sh
 
 - go to "http://localhost/"
 
 
+### Make migrations
+
+    cd stock
+    python manage.py makemigrations panel
+
+OR
+
+    ./scripts/makemigrations.bat
+
+    sh scripts/makemigrations.sh
+
+
+### Reset migrations: remove BDD and MIGRATIONS and make migrations
+
+    ./scripts/resetmigrations.bat
+
+    sh scripts/resetmigrations.sh
+
+
 ### Migrate
 
+    cd stock
     python manage.py migrate
+
+OR
+
+    ./scripts/migrate.bat
+
+    sh scripts/migrate.sh
 
 
 ### Run
 
+    cd stock
     python manage.py runserver
+
+OR
+
+    ./scripts/run.bat
+
+    sh scripts/run.sh
 
 
 ### Create super user

@@ -1,7 +1,9 @@
-Service Après-Vente Storage Manager (SAVSM)
+# Familink Stock
 
-This Django Project will be use for manage the storage of the FAMILINK's SAV
-With 7 Database Table :
+This Django Project will be use for manage the storage of the FAMILINK's
+
+## Database tables
+7 Database Table :
 
     "Object" Type Database :
         -Object
@@ -74,3 +76,33 @@ Theses Data bases is linked with signals and permit more automation :
 
     -update_SAVStock() --> (post_save) This is the signals that update SAVStock when a new BatchStock is here
     and create new object if unknown object is in (maybe I should deactivate this...)
+
+## Getting started
+
+### Install
+
+    git config --global url."https://github.com/".insteadOf git://github.com/
+    git clone https://github.com/Mateo-RENAC/DjangoSAVSM familink_stock
+    cd familink_stock
+
+    virtualenv venv
+    source venv/bin/activate
+    pip install -r requirments.txt
+    
+    python manage.py makemigrations
+    python manage.py migrate
+    python manage.py runserver
+
+- go to "http://localhost/"
+    - user: mateo
+    - password: 1234
+
+
+### Migrate
+
+    python manage.py migrate
+
+
+### Run
+
+    python manage.py runserver

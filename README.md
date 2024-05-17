@@ -88,6 +88,7 @@ Theses Data bases is linked with signals and permit more automation :
     virtualenv venv
     source venv/bin/activate
     pip install -r requirments.txt
+    cd stock
     
     python manage.py makemigrations
     python manage.py migrate

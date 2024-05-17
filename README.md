@@ -92,11 +92,10 @@ Theses Data bases is linked with signals and permit more automation :
     
     python manage.py makemigrations
     python manage.py migrate
+    python manage.py createsuperuser
     python manage.py runserver
 
 - go to "http://localhost/"
-    - user: mateo
-    - password: 1234
 
 
 ### Migrate
@@ -107,3 +106,8 @@ Theses Data bases is linked with signals and permit more automation :
 ### Run
 
     python manage.py runserver
+
+
+### Create super user
+
+    python manage.py createsuperuser

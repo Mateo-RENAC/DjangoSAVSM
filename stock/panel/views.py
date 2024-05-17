@@ -74,7 +74,7 @@ def generate_pdf_Stock(request):
     elements = []
 
     # Add the logo with preserved aspect ratio
-    logo_path = "SAVSMapp\\Logo\\1024x1024_full.png"
+    logo_path = "resources\\Logo\\1024x1024_full.png"
     logo = Image(logo_path)
     logo_width = 1.5 * inch
     logo_height = (logo.imageHeight / logo.imageWidth) * logo_width
@@ -165,7 +165,7 @@ def generate_pdf_Conso(request):
     elements = []
 
     # Add the logo with preserved aspect ratio
-    logo_path = "SAVSMapp\Logo\1024x1024_full.png"
+    logo_path = "resources\Logo\1024x1024_full.png"
     logo = Image(logo_path)
     logo_width = 1.5 * inch
     logo_height = (logo.imageHeight / logo.imageWidth) * logo_width

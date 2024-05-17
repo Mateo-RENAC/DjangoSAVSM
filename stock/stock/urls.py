@@ -1,5 +1,5 @@
 """
-URL configuration for SAVSM project.
+URL configuration for stock project.
 
 The `urlpatterns` list routes URLs to views. For more information please see:
     https://docs.djangoproject.com/en/4.2/topics/http/urls/
@@ -18,8 +18,8 @@ Including another URLconf
 
 from django.contrib import admin
 from django.urls import path
-from SAVSMapp.views import *
-from SAVSMapp.views import generate_pdf_Stock, generate_pdf_Conso
+from panel.views import *
+from panel.views import generate_pdf_Stock, generate_pdf_Conso
 
 urlpatterns = [
     path('admin/', admin.site.urls),

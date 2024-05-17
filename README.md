@@ -90,7 +90,7 @@ Theses Data bases is linked with signals and permit more automation :
     pip install -r requirments.txt
     cd stock
     
-    python manage.py makemigrations
+    python manage.py makemigrations panel
     python manage.py migrate
     python manage.py createsuperuser
     python manage.py runserver

@@ -23,8 +23,8 @@ from SAVSMapp.views import generate_pdf_Stock, generate_pdf_Conso
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('ConsoGraph/', chart),
-    path('StockGraph/', stock_chart),
-    path('pdf_Stock/', generate_pdf_Stock, name='generate_pdf_Stock'),
-    path('pdf_Conso', generate_pdf_Conso, name='generate_pdf_Conso'),
+    path('graph/conso/', chart),
+    path('graph/stock/', stock_chart),
+    path('pdf/stock/', generate_pdf_Stock, name='generate_pdf_Stock'),
+    path('pdf/conso/', generate_pdf_Conso, name='generate_pdf_Conso'),
 ]

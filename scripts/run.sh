@@ -1,3 +1,3 @@
 cd stock
-python manage.py runserver
+../.venv/bin/python manage.py runserver
 cd ..

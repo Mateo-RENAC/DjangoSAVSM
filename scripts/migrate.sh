@@ -1,3 +1,3 @@
 cd stock
-python manage.py migrate
+../.venv/bin/python manage.py migrate
 cd ..

@@ -8,7 +8,7 @@ class ProductAdmin(admin.ModelAdmin):
 admin.site.register(Product, ProductAdmin)
 
 class StockAdmin(admin.ModelAdmin):
-    list_display = ('product_name', 'count')
+    list_display = ('product_name', 'count', 'pending_count')
     search_fields = ('product__name',)
 
     def product_name(self, obj):

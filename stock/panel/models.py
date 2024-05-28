@@ -7,6 +7,7 @@ class Product(models.Model):
     user_name = models.CharField(max_length=50, blank=True, null=True)
     abbreviated_user_name = models.CharField(max_length=10, blank=True, null=True)
     description = models.TextField(blank=True, null=True)
+    localization = models.TextField(blank=True, null=True)
     order_link = models.URLField(blank=True, null=True)
     previous_order = models.ForeignKey('Order', on_delete=models.SET_NULL, null=True, blank=True, related_name='previous_orders')
 
@@ -16,6 +17,7 @@ class Product(models.Model):
 class Stock(models.Model):
     product = models.OneToOneField(Product, on_delete=models.CASCADE)
     count = models.IntegerField(default=0)
+    pending_count = models.IntegerField(default=0)
 
     def __str__(self):
         return f"{self.product.name} - {self.count}"

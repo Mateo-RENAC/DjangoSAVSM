@@ -19,7 +19,7 @@ def update_stock_on_order(sender, instance, created, **kwargs):
         set_flag('skip_stock_signal', True)
         try:
             stock, created = Stock.objects.get_or_create(product=instance.product)
-            stock.count += instance.quantity
+            stock.pending_count += instance.quantity
             stock.save()
         finally:
             set_flag('skip_stock_signal', False)

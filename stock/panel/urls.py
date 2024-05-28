@@ -4,6 +4,12 @@ from .views import (
     bar_graph, historical_graph, generate_pdf_stock, generate_pdf_conso, alert_table, product_search, graph_page, instantaneous_data, historical_data
 )
 from .models import StockHistory, ConsoHistory
+from django.urls import path, include
+from rest_framework.routers import DefaultRouter
+from .views import ProductViewSet
+
+router = DefaultRouter()
+router.register(r'products', ProductViewSet)
 
 urlpatterns = [
     path('', dashboard, name='dashboard'),
@@ -23,4 +29,5 @@ urlpatterns = [
     path('graphs/', graph_page, name='graph_page'),
     path('instantaneous-data/', instantaneous_data, name='instantaneous_data'),
     path('historical-data/', historical_data, name='historical_data'),
+    path('api/', include(router.urls)),
 ]

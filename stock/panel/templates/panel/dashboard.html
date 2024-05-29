@@ -1,0 +1,16 @@
+{% extends 'base.html' %}
+{% block title %}Dashboard{% endblock %}
+{% block content %}
+<div class="row">
+    <div class="col-md-3">
+        <div class="card card-custom">
+            <div class="card-header">
+                <h4>Alerts</h4>
+            </div>
+            <div class="card-body text-center">
+                <a href="{% url 'alert_table' %}" class="btn btn-custom">View Alerts</a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

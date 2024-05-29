@@ -1,0 +1,217 @@
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const searchInput = document.getElementById('searchInput');
+        const productTableBody = document.getElementById('productTableBody');
+        const addInlineProductBtn = document.getElementById('addInlineProductBtn');
+        const inlineProductRow = document.getElementById('inlineProductRow');
+        const saveInlineProductBtn = document.getElementById('saveInlineProductBtn');
+        const contextMenu = document.getElementById('contextMenu');
+        let currentColumn;
+        let hiddenColumns = [];
+
+        searchInput.addEventListener('input', function() {
+            const query = searchInput.value;
+            fetch(`{% url 'product_search' %}?query=${query}`)
+                .then(response => response.json())
+                .then(data => {
+                    productTableBody.innerHTML = '';
+                    data.forEach(product => {
+                        const row = document.createElement('tr');
+                        row.classList.add('product-row');
+                        row.innerHTML = `
+                            <td data-column="name">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <span>${product.name || 'None'}</span>
+                                    <span class="flex-grow-1"></span>
+                                    <span>
+                                        <button type="button" class="btn btn-info btn-circle" data-bs-toggle="modal" data-bs-target="#infoModal"
+                                                data-product-id="${product.id}"
+                                                data-product-name="${product.name}"
+                                                data-product-reference="${product.reference}"
+                                                data-product-user-name="${product.user_name}"
+                                                data-product-abbreviated-user-name="${product.abbreviated_user_name}"
+                                                data-product-description="${product.description}"
+                                                data-product-order-link="${product.order_link}"
+                                                data-product-stock-count="${product.stock_count}">
+                                            i
+                                        </button>
+                                    </span>
+                                </div>
+                            </td>
+                            <td data-column="reference">${product.reference || 'None'}</td>
+                            <td data-column="user_name">${product.user_name || 'None'}</td>
+                            <td data-column="count">${product.stock_count}</td>
+                            <td class="actions-cell" style="width: 180px;">
+                                <a href="/panel/products/detail/${product.id}/" class="btn btn-sm btn-secondary" style="display: none;">Details</a>
+                                <a href="/panel/products/edit/${product.id}/" class="btn btn-sm btn-primary" style="display: none;">Edit</a>
+                                <a href="/panel/products/delete/${product.id}/" class="btn btn-sm btn-danger" style="display: none;" data-bs-toggle="modal" data-bs-target="#deleteModal" data-product-id="${product.id}" data-product-name="${product.name}">Delete</a>
+                            </td>
+                        `;
+                        productTableBody.appendChild(row);
+                    });
+                    initializeRowEvents();
+                    applyHiddenColumns();
+                });
+        });
+
+        addInlineProductBtn.addEventListener('click', function(event) {
+            event.preventDefault();
+            inlineProductRow.style.display = '';
+            document.getElementById('inlineProductName').focus();
+        });
+
+        document.addEventListener('click', function(event) {
+            if (!inlineProductRow.contains(event.target) && !addInlineProductBtn.contains(event.target)) {
+                inlineProductRow.style.display = 'none';
+            }
+            if (event.target.closest('.column-header') === null) {
+                contextMenu.style.display = 'none';
+            }
+        });
+
+        saveInlineProductBtn.addEventListener('click', function(event) {
+            event.preventDefault();
+            saveInlineProduct();
+        });
+
+        document.getElementById('inlineProductName').addEventListener('keydown', function(event) {
+            if (event.key === 'Enter') {
+                saveInlineProduct();
+            }
+        });
+
+        function saveInlineProduct() {
+            const name = document.getElementById('inlineProductName').value;
+            const reference = document.getElementById('inlineProductReference').value;
+            const userName = document.getElementById('inlineProductUserName').value;
+            const count = document.getElementById('inlineProductCount').value;
+
+            if (!name || !count) {
+                alert('Name and Count are required');
+                return;
+            }
+
+            fetch('{% url "product_add" %}', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': '{{ csrf_token }}',
+                },
+                body: JSON.stringify({
+                    name: name,
+                    reference: reference,
+                    user_name: userName,
+                    count: count,
+                }),
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    window.location.reload();
+                } else {
+                    alert('Error adding product');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+            });
+        }
+
+        // Modal handling for product info
+        const infoModal = document.getElementById('infoModal');
+        infoModal.addEventListener('show.bs.modal', function(event) {
+            const button = event.relatedTarget;
+            document.getElementById('infoProductName').textContent = button.getAttribute('data-product-name');
+            document.getElementById('infoProductReference').textContent = button.getAttribute('data-product-reference');
+            document.getElementById('infoProductUserName').textContent = button.getAttribute('data-product-user-name');
+            document.getElementById('infoProductAbbreviatedUserName').textContent = button.getAttribute('data-product-abbreviated-user-name');
+            document.getElementById('infoProductDescription').textContent = button.getAttribute('data-product-description');
+            const orderLink = button.getAttribute('data-product-order-link');
+            document.getElementById('infoProductOrderLink').textContent = orderLink;
+            document.getElementById('infoProductOrderLink').href = orderLink;
+            document.getElementById('infoProductStockCount').textContent = button.getAttribute('data-product-stock-count');
+            document.getElementById('moreDetailsLink').href = `/panel/products/detail/${button.getAttribute('data-product-id')}/`;
+        });
+
+        // Modal handling for delete confirmation
+        const deleteModal = document.getElementById('deleteModal');
+        deleteModal.addEventListener('show.bs.modal', function(event) {
+            const button = event.relatedTarget;
+            const productId = button.getAttribute('data-product-id');
+            const productName = button.getAttribute('data-product-name');
+            const form = deleteModal.querySelector('form');
+            form.action = `/panel/products/delete/${productId}/`;
+            deleteModal.querySelector('.modal-body').textContent = `Are you sure you want to delete "${productName}"?`;
+        });
+
+        // Show action buttons on hover
+        function initializeRowEvents() {
+            document.querySelectorAll('.product-row').forEach(row => {
+                row.addEventListener('mouseenter', () => {
+                    showButtons(row, true);
+                });
+                row.addEventListener('mouseleave', () => {
+                    showButtons(row, false);
+                });
+            });
+        }
+
+        // Adjust action buttons visibility for adjacent rows
+        function showButtons(row, show) {
+            row.querySelectorAll('.btn').forEach(btn => {
+                btn.style.display = show ? 'inline-block' : 'none';
+            });
+        }
+
+        // Right-click context menu for column headers
+        document.querySelectorAll('.column-header').forEach(header => {
+            header.addEventListener('contextmenu', function(event) {
+                event.preventDefault();
+                currentColumn = header.parentNode.getAttribute('data-column');
+                contextMenu.style.display = 'block';
+                contextMenu.style.left = `${event.pageX}px`;
+                contextMenu.style.top = `${event.pageY}px`;
+            });
+        });
+
+        // Context menu actions
+        contextMenu.addEventListener('click', function(event) {
+            const action = event.target.getAttribute('data-action');
+            if (action === 'hide') {
+                document.querySelectorAll(`[data-column="${currentColumn}"]`).forEach(el => el.style.display = 'none');
+                hiddenColumns.push(currentColumn);
+                const columnName = document.querySelector(`[data-column="${currentColumn}"] .column-link`).textContent.trim();
+                const hiddenColumnsDiv = document.getElementById('hiddenColumns');
+                const btn = document.createElement('button');
+                btn.classList.add('btn', 'btn-secondary', 'btn-sm', 'me-2');
+                btn.innerHTML = `${columnName} <span class="btn-close btn-close-white" aria-hidden="true"></span>`;
+                btn.addEventListener('click', () => {
+                    document.querySelectorAll(`[data-column="${currentColumn}"]`).forEach(el => el.style.display = '');
+                    hiddenColumns = hiddenColumns.filter(col => col !== currentColumn);
+                    btn.remove();
+                });
+                hiddenColumnsDiv.appendChild(btn);
+            } else if (action === 'sort-asc' || action === 'sort-desc') {
+                const query = new URLSearchParams(window.location.search);
+                query.set('sort', currentColumn);
+                query.set('order', action === 'sort-asc' ? 'asc' : 'desc');
+                window.location.search = query.toString();
+            }
+            contextMenu.style.display = 'none';
+        });
+
+        function applyHiddenColumns() {
+            hiddenColumns.forEach(column => {
+                document.querySelectorAll(`[data-column="${column}"]`).forEach(el => el.style.display = 'none');
+            });
+        }
+
+        initializeRowEvents();
+        applyHiddenColumns();
+    });
+</script>
+<div id="contextMenu" class="dropdown-menu" style="display: none; position: absolute;">
+    <a class="dropdown-item" href="#" data-action="hide">Hide</a>
+    <a class="dropdown-item" href="#" data-action="sort-asc">Sort in ascending order</a>
+    <a class="dropdown-item" href="#" data-action="sort-desc">Sort in descending order</a>
+</div>

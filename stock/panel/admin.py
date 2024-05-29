@@ -1,83 +1,94 @@
 from django.contrib import admin
-from django.contrib.admin import AdminSite
-from .models import BatchStockObject, Object, ConsoHistoryObject
-from .models import BatchStock, ConsoHistory, SAVStock, SAVConso
+from .models import Product, Stock, Consumption, StockHistory, ConsoHistory, Order, Batch, Alert
 
+class ProductAdmin(admin.ModelAdmin):
+    list_display = ('name', 'reference', 'user_name', 'abbreviated_user_name', 'description', 'order_link')
+    search_fields = ('name', 'reference', 'user_name')
 
-class SAVStockAdmin(admin.ModelAdmin):
-    list_display = ('object_name', 'stock_count')
-    list_filter = ('id_object__name',)
-    search_fields = ('id_object__name',)
+admin.site.register(Product, ProductAdmin)
 
-    def object_name(self, obj):
-        return obj.id_object.name
+class StockAdmin(admin.ModelAdmin):
+    list_display = ('product_name', 'count', 'pending_count')
+    search_fields = ('product__name',)
 
-    object_name.short_description = 'Name'
+    def product_name(self, obj):
+        return obj.product.name
 
-    def stock_count(self, obj):
-        return obj.stock_Count
+    product_name.short_description = 'Product'
 
-    stock_count.short_description = 'Count'
+admin.site.register(Stock, StockAdmin)
 
+class ConsumptionAdmin(admin.ModelAdmin):
+    list_display = ('product_name', 'count')
+    search_fields = ('product__name',)
 
-admin.site.register(SAVStock, SAVStockAdmin)
+    def product_name(self, obj):
+        return obj.product.name
 
+    product_name.short_description = 'Product'
 
-class SAVConsoAdmin(admin.ModelAdmin):
-    list_display = ('object_name', 'conso_Count', 'date')
+admin.site.register(Consumption, ConsumptionAdmin)
+
+class StockHistoryAdmin(admin.ModelAdmin):
+    list_display = ('product_name', 'date', 'count')
     list_filter = ('date',)
-    search_fields = ('id_object__name',)
+    search_fields = ('product__name',)
 
-    def object_name(self, obj):
-        return obj.id_object.name
+    def product_name(self, obj):
+        return obj.product.name
 
-    object_name.short_description = 'Name'
+    product_name.short_description = 'Product'
 
-
-admin.site.register(SAVConso, SAVConsoAdmin)
-
-
-class BatchStockAdmin(admin.ModelAdmin):
-    list_display = ('name', 'batchstock_objects', 'date')
-    search_fields = ('name',)
-
-    def batchstock_objects(self, obj):
-        return ", ".join([f"{batch_stock_object.object.name} ({batch_stock_object.count})" for batch_stock_object in obj.batchstockobject_set.all()])
-
-    batchstock_objects.short_description = 'Objects and Counts'
-
-
-admin.site.register(BatchStock, BatchStockAdmin)
-
+admin.site.register(StockHistory, StockHistoryAdmin)
 
 class ConsoHistoryAdmin(admin.ModelAdmin):
-    list_display = ('id_ConsoHistory', 'date_Conso_History', 'object_counts')
-    search_fields = ('id_ConsoHistory', 'date_Conso_History')
+    list_display = ('product_name', 'date', 'count')
+    list_filter = ('date',)
+    search_fields = ('product__name',)
 
-    def object_counts(self, obj):
-        counts = [f"{obj.object.name}: {obj.count}" for obj in obj.consohistoryobject_set.all()]
-        return ', '.join(counts)
+    def product_name(self, obj):
+        return obj.product.name
 
-    object_counts.short_description = 'Objects and Counts'
-
+    product_name.short_description = 'Product'
 
 admin.site.register(ConsoHistory, ConsoHistoryAdmin)
 
+class OrderAdmin(admin.ModelAdmin):
+    list_display = ('product_name', 'quantity', 'date', 'batch_name')
+    list_filter = ('date',)
+    search_fields = ('product__name',)
 
-@admin.register(BatchStockObject)
-class BatchStockObjectAdmin(admin.ModelAdmin):
-    list_display = ('batch_stock', 'object', 'count')
-    list_filter = ('batch_stock__date',)
-    search_fields = ('object__name',)
+    def product_name(self, obj):
+        return obj.product.name
 
+    product_name.short_description = 'Product'
 
-@admin.register(Object)
-class ObjectAdmin(admin.ModelAdmin):
-    list_display = ('name', 'description')
+    def batch_name(self, obj):
+        return obj.batch.name if obj.batch else 'No Batch'
 
+    batch_name.short_description = 'Batch'
 
-@admin.register(ConsoHistoryObject)
-class ConsoHistoryObjectAdmin(admin.ModelAdmin):
-    list_display = ('conso_history', 'object', 'count')
-    list_filter = ('conso_history__date_Conso_History',)
-    search_fields = ('object__name',)
+admin.site.register(Order, OrderAdmin)
+
+class BatchAdmin(admin.ModelAdmin):
+    list_display = ('name', 'date', 'orders_list')
+    search_fields = ('name',)
+
+    def orders_list(self, obj):
+        return ", ".join([f"Order {order.id} - {order.product.name} ({order.quantity})" for order in obj.orders.all()])
+
+    orders_list.short_description = 'Orders'
+
+admin.site.register(Batch, BatchAdmin)
+
+@admin.register(Alert)
+class AlertAdmin(admin.ModelAdmin):
+    list_display = ('product', 'threshold_low', 'threshold_high', 'active')
+    search_fields = ('product__name',)
+    list_filter = ('active',)
+
+    def get_form(self, request, obj=None, **kwargs):
+        form = super().get_form(request, obj, **kwargs)
+        form.base_fields['threshold_low'].required = False
+        form.base_fields['threshold_high'].required = False
+        return form

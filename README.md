@@ -79,6 +79,19 @@ Theses Data bases is linked with signals and permit more automation :
 
 ## Getting started
 
+### Install system requirements
+
+#### Python
+
+    sudo apt install python3 python3-pip python3.8-dev virtualenv libwebp-dev redis libcurl4-openssl-dev libssl-dev
+
+#### Javascript
+
+    sudo apt install nodejs npm
+    curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.7/install.sh | bash
+    source ~/.bashrc
+    nvm install 20
+
 ### Install
 
     git config --global url."https://github.com/".insteadOf git://github.com/
@@ -87,7 +100,7 @@ Theses Data bases is linked with signals and permit more automation :
 
     virtualenv venv
     source venv/bin/activate
-    pip install -r requirments.txt
+    pip install -r requirements.txt
     cd stock
     
     python manage.py makemigrations panel

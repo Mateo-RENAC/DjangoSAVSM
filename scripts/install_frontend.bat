@@ -25,4 +25,3 @@ if not exist "tailwind.config.js" (
 
 echo Download complete !
 echo For more information, take a look to the README.md !
-pause

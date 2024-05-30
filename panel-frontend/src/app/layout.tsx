@@ -1,21 +1,18 @@
-"use client";
+import './styles/globals.css'; // Import global styles
+import { metadata } from './metadata.tsx'; // Import metadata
+import Navbar from "@/components/Navbar";
 
-import React from 'react';
-import Head from 'next/head';
-import { ThemeProvider, CssBaseline } from '@mui/material';
-import theme from './theme';
-
-export default function Layout({ children }) {
+export default function RootLayout({ children }) {
   return (
     <html lang="en">
-      <Head>
-        <title>My Next.js App</title>
-      </Head>
+      <head>
+        <title>{metadata.title}</title>
+        <meta name="description" content={metadata.description} />
+        {/* Add any other head tags here */}
+      </head>
       <body>
-        <ThemeProvider theme={theme}>
-          <CssBaseline />
-          {children}
-        </ThemeProvider>
+        <Navbar/>
+        {children}
       </body>
     </html>
   );

@@ -5,7 +5,7 @@ PROJECT_NAME="panel-frontend"
 
 # Vérifie si le projet existe déjà
 if [ -d "$PROJECT_NAME" ]; then
-  echo "Le projet $PROJECT_NAME existe déjà. Installation des modules..."
+  echo "The project $PROJECT_NAME already exist. Downloading modules..."
 else
   echo "Création du projet $PROJECT_NAME..."
   npx create-next-app@latest $PROJECT_NAME
@@ -23,4 +23,5 @@ if [ ! -f "tailwind.config.js" ]; then
   npx tailwindcss init -p
 fi
 
-echo "Installation terminée!"
+echo "Download complete !"
+echo "For more information, don't forget to read the README.md !"

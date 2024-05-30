@@ -5,7 +5,7 @@ set PROJECT_NAME=panel-frontend
 
 :: Vérifie si le projet existe déjà
 if exist "%PROJECT_NAME%" (
-    echo Le projet %PROJECT_NAME% existe deja. Installation des modules...
+    echo The project %PROJECT_NAME% already exist. Downloading modules...
 ) else (
     echo Création du projet %PROJECT_NAME%...
     npx create-next-app@latest %PROJECT_NAME%
@@ -23,5 +23,6 @@ if not exist "tailwind.config.js" (
     npx tailwindcss init -p
 )
 
-echo Installation terminée!
+echo Download complete !
+echo For more information, take a look to the README.md !
 pause

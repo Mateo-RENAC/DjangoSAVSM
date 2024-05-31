@@ -80,6 +80,7 @@ const ProductTable = () => {
     console.log('Edit clicked for:', product);
   }
 
+  // @ts-ignore
   function handleDeleteClick(productId) {
     console.log('Delete clicked for product ID:', productId);
   }

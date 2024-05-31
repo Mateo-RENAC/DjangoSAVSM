@@ -5,8 +5,11 @@ import { Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper
 import InfoIcon from '@mui/icons-material/Info';
 import EditIcon from '@mui/icons-material/Edit';
 
+
 const ProductTable = () => {
   const [products, setProducts] = useState([]);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [sortBy, setSortBy] = useState('');
 
   useEffect(() => {
   fetch('http://localhost:8000/panel/api/products/') // Direct URL for testing
@@ -36,19 +39,10 @@ const ProductTable = () => {
       .catch(error => {
         console.error('Error fetching products:', error);
       });*/
+    return (
 
-  return (
     <TableContainer component={Paper}>
       <Table>
-        <TableHead>
-          <TableRow>
-            <TableCell>Name</TableCell>
-            <TableCell>Reference</TableCell>
-            <TableCell>User Name</TableCell>
-            <TableCell>Count</TableCell>
-            <TableCell>Actions</TableCell>
-          </TableRow>
-        </TableHead>
         <TableBody>
           {products.map((product) => (
             <TableRow key={product.id}>

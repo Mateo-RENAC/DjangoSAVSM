@@ -1,5 +1,5 @@
 // src/pages/Dashboard.js
-import { MyComponent } from '../components/HelloWorld';
+import { MyComponent } from '@/components/HelloWorld';
 
 const Dashboard = () => {
   return (

@@ -15,7 +15,7 @@ from reportlab.graphics.charts.barcharts import VerticalBarChart
 import json
 from rest_framework import viewsets
 
-from .serializers import ProductSerializer
+from .serializers import ProductSerializer, StockSerializer
 
 
 def dashboard(request):
@@ -378,3 +378,7 @@ def generate_pdf_conso(request):
 class ProductViewSet(viewsets.ModelViewSet):
     queryset = Product.objects.all()
     serializer_class = ProductSerializer
+
+class StockViewSet(viewsets.ModelViewSet):
+    queryset = Stock.objects.all()
+    serializer_class = StockSerializer

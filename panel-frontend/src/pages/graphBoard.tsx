@@ -1,55 +1,31 @@
 import React from 'react';
-import Graphs from '../components/Graphs';
+import DashboardContainer from '../components/graph/DashboardContainer';
+
+const sampleGraphs = [
+  { type: 'line', content: [{ label: 'Jan', value: 30 }, { label: 'Feb', value: 20 }, { label: 'Mar', value: 50 }], title: 'Line Chart', scale: 1, colors: ['#29675e'], weight: 1 },
+  { type: 'bar', content: [{ label: 'A', value: 12 }, { label: 'B', value: 19 }, { label: 'C', value: 3 }], title: 'Bar Chart', scale: 1, colors: ['#4f1d65'], weight: 2 },
+  { type: 'pie', content: [{ label: 'Red', value: 10 }, { label: 'Blue', value: 20 }, { label: 'Yellow', value: 30 }], title: 'Pie Chart', scale: 1, colors: ['#8c3d4e', '#36759e', '#9d802b'], weight: 1 },
+  { type: 'bar', content: [{ label: 'A', value: 12 }, { label: 'B', value: 19 }, { label: 'C', value: 3 }], title: 'Bar Chart', scale: 1, colors: ['#0b7a9f'], weight: 20 },
+  { type: 'bar', content: [{ label: 'A', value: 56 }, { label: 'B', value: 19 }, { label: 'C', value: 90 }], title: 'Bar Chart', scale: 1, colors: ['#257f25'], weight: 20 },
+  { type: 'bar', content: [{ label: 'A', value: 12 }, { label: 'B', value: 72 }, { label: 'C', value: 3 }], title: 'Bar Chart', scale: 1, colors: ['#651717'], weight: 20 },
+  { type: 'bar', content: [{ label: 'A', value: 36 }, { label: 'B', value: 19 }, { label: 'C', value: 3 }], title: 'Bar Chart', scale: 1, colors: ['#935724'], weight: 20 },
+  { type: 'line', content: [{ label: 'Jan', value: 30 }, { label: 'Feb', value: 20 }, { label: 'Mar', value: 50 }], title: 'Line Chart', scale: 1, colors: ['#3b2967'], weight: 1 },
+  { type: 'pie', content: [{ label: 'Red', value: 10 }, { label: 'Blue', value: 20 }, { label: 'Yellow', value: 30 }], title: 'Pie Chart', scale: 1, colors: ['#8c3d4e', '#36759e', '#9d802b'], weight: 1 },
+  { type: 'radar', content: [{ label: 'Red', value: 10 }, { label: 'Blue', value: 20 }, { label: 'Yellow', value: 30 }], title: 'Pie Chart', scale: 1, colors: ['#8c3d4e', '#36759e', '#9d802b'], weight: 1 },
+
+];
+
+const settings = {
+  width: '100%',
+  title: 'Customizable Dashboard',
+  numberOfColumns: 5,
+  gap: '4px' // Set the gap between graph containers
+};
 
 const Home = () => {
-  const sampleData1 = [
-    { name: 'January', value: 65 },
-    { name: 'February', value: 59 },
-    { name: 'March', value: 80 },
-    { name: 'April', value: 81 },
-    { name: 'May', value: 56 },
-    { name: 'June', value: 55 },
-    { name: 'July', value: 40 },
-  ];
-
-  const sampleData2 = [
-    { name: 'August', value: 75 },
-    { name: 'September', value: 69 },
-    { name: 'October', value: 90 },
-    { name: 'November', value: 91 },
-    { name: 'December', value: 66 },
-  ];
-
-  const graphs = [
-    { data: sampleData1, row: 0, column: 0, widthWeight: 2, heightWeight: 1 },
-    { data: sampleData1, row: 0, column: 2, widthWeight: 1, heightWeight: 1 },
-    { data: sampleData1, row: 0, column: 3, widthWeight: 1, heightWeight: 1 },
-
-    { data: sampleData1, row: 1, column: 0, widthWeight: 1, heightWeight: 1 },
-    { data: sampleData1, row: 1, column: 1, widthWeight: 1, heightWeight: 1 },
-    { data: sampleData1, row: 1, column: 2, widthWeight: 1, heightWeight: 1 },
-    { data: sampleData1, row: 1, column: 3, widthWeight: 1, heightWeight: 1 },
-
-    { data: sampleData1, row: 2, column: 0, widthWeight: 1, heightWeight: 1 },
-    { data: sampleData1, row: 2, column: 1, widthWeight: 1, heightWeight: 1 },
-    { data: sampleData1, row: 2, column: 2, widthWeight: 2, heightWeight: 1 },
-    { data: sampleData1, row: 2, column: 3, widthWeight: 1, heightWeight: 1 },
-
-    { data: sampleData1, row: 3, column: 0, widthWeight: 1, heightWeight: 1 },
-    { data: sampleData1, row: 3, column: 1, widthWeight: 1, heightWeight: 1 },
-    { data: sampleData1, row: 3, column: 2, widthWeight: 1, heightWeight: 1 },
-    { data: sampleData1, row: 3, column: 3, widthWeight: 1, heightWeight: 1 },
-  ];
-
   return (
-    <div className="page-container">
-      <header className="header">
-        <h1>Home Page</h1>
-        <p>Welcome to the Home Page!</p>
-      </header>
-      <div className="graphs-container">
-        <Graphs rows={4} columns={4} graphs={graphs} />
-      </div>
+    <div className="app">
+      <DashboardContainer graphs={sampleGraphs} settings={settings} />
     </div>
   );
 };

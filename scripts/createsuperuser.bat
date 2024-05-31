@@ -1,3 +1,3 @@
 cd stock
-python manage.py createsuperuser
+..\.venv\Scripts\python manage.py createsuperuser
 cd ..

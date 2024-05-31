@@ -40,8 +40,8 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'rest_framework',
     'corsheaders',
-    'stock',  # This is the name of the main app directory
-    'panel',  # This is the name of the app within the stock directory
+    'stock',
+    'panel'
 ]
 
 
@@ -132,4 +132,6 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 CORS_ALLOWED_ORIGINS = [
     "http://localhost:3000",  # or the domain where your Next.js app is running
     "http://localhost:3001",  # or the domain where your Next.js app is running
+    "http://127.0.0.1:3000",  # or the domain where your Next.js app is running
+    "http://127.0.0.1:3001",  # or the domain where your Next.js app is running
 ]

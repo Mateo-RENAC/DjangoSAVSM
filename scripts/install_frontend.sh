@@ -15,7 +15,7 @@ fi
 cd $PROJECT_NAME
 
 # Installe les modules nécessaires
-npm install @mui/material @emotion/react @emotion/styled @mui/icons-material react-mermaid2 mermaid react-chartjs-2 chart.js
+npm install @mui/material @emotion/react @emotion/styled @mui/icons-material styled-components react-mermaid2 mermaid react-chartjs-2 chart.js
 npm install tailwindcss postcss autoprefixer react-router-dom
 
 # Si tailwind.config.js n'existe pas, initialisez Tailwind CSS

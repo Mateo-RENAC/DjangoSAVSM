@@ -1,5 +1,6 @@
 import React from 'react';
 import DashboardContainer from '../components/graph/DashboardContainer';
+import Breadcrumb from "@/components/Breadcrumb";
 
 const sampleGraphs = [
   { type: 'line', content: [{ label: 'Jan', value: 30 }, { label: 'Feb', value: 20 }, { label: 'Mar', value: 50 }], title: 'Line Chart', scale: 1, colors: ['#29675e'], weight: 1 },
@@ -22,7 +23,7 @@ const settings = {
   gap: '4px' // Set the gap between graph containers
 };
 
-const Home = () => {
+const GraphBoard = () => {
   return (
     <div className="app">
       <DashboardContainer graphs={sampleGraphs} settings={settings} />
@@ -30,4 +31,4 @@ const Home = () => {
   );
 };
 
-export default Home;
+export default GraphBoard;

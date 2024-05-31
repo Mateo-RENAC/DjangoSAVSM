@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import GraphContainer from './GraphContainer';
 import Title from './Title';
-import calculateGrid from '@/utils/calculateGrid';
 
 const DashboardContainer = ({ graphs, settings }) => {
   const [hiddenGraphs, setHiddenGraphs] = useState([]);

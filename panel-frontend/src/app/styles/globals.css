@@ -20,18 +20,78 @@ html, body, #__next {
   background-color: #f0f0f0;
 }
 
-.graphs-container {
-  height: 100%;
-  width: 100%;
+.dashboard-container {
   display: flex;
+  flex-direction: column;
+  align-items: center;
 }
 
 .graphs-grid {
-  display: grid;
-  width: 100%;
-  height: 100%;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0; /* Default gap to 0 */
 }
 
-.graphs-grid > div {
+.graph-container {
+  display: inline-flex;
+  position: relative;
+  border: 1px solid #ccc;
+  background-color: transparent;
   overflow: hidden;
+  flex-grow: 0; /* Prevent graphs from growing to fill available space */
+  flex-shrink: 0; /* Prevent graphs from shrinking below their content size */
+}
+
+.graph-container .react-resizable {
+  position: relative;
+  border: none;
+}
+
+.graph-container .react-resizable-handle {
+  position: absolute;
+  width: 20px;
+  height: 20px;
+  bottom: 0;
+  right: 0;
+  background: transparent;
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: se-resize;
+}
+
+.show-hide-button {
+  position: absolute;
+  top: 5px;
+  right: 5px;
+  background-color: transparent;
+  border: none;
+  cursor: pointer;
+  font-size: 16px;
+  color: #fff;
+}
+
+.zoom-buttons {
+  position: absolute;
+  top: 5px;
+  left: 5px;
+  display: flex;
+  gap: 5px;
+}
+
+.taskbar {
+  display: flex;
+  flex-direction: row;
+  margin-bottom: 10px;
+}
+
+.taskbar button {
+  background-color: #444;
+  color: #fff;
+  border: none;
+  border-radius: 3px;
+  padding: 5px 10px;
+  cursor: pointer;
+  margin-right: 5px;
 }

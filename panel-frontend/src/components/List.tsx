@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import Table from '@mui/material/Table';
 import TableBody from '@mui/material/TableBody';
 import TableCell from '@mui/material/TableCell';
@@ -20,24 +20,31 @@ const List = ({ dataUrl, columns }) => {
   const [data, setData] = useState([]);
   const [searchQuery, setSearchQuery] = useState('');
   const [sortBy, setSortBy] = useState('');
+  const fetchCalled = useRef(false);
 
   useEffect(() => {
-    fetch(dataUrl)
-      .then(response => {
-        if (!response.ok) {
-          throw new Error('Network response was not ok');
-        }
-        return response.json();
-      })
-      .then(data => setData(data))
-      .catch(error => console.error('Error fetching data:', error));
+    if (!fetchCalled.current) {
+      fetchCalled.current = true;
+      fetch(dataUrl)
+        .then(response => {
+          if (!response.ok) {
+            throw new Error('Network response was not ok');
+          }
+          return response.json();
+        })
+        .then(data => setData(data))
+        .catch(error => console.error('Error fetching data:', error));
+    }
   }, [dataUrl]);
 
   const filteredData = data
     .filter(item =>
-      columns.some(column =>
-        item[column.field].toString().toLowerCase().includes(searchQuery.toLowerCase())
-      )
+      columns.some(column => {
+        const fieldValue = item[column.field];
+        // Check if fieldValue is not undefined or null before converting to string
+        return fieldValue !== undefined && fieldValue !== null &&
+          fieldValue.toString().toLowerCase().includes(searchQuery.toLowerCase());
+      })
     )
     .sort((a, b) => {
       if (sortBy === '') return 0;

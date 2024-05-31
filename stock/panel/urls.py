@@ -6,10 +6,11 @@ from .views import (
 from .models import StockHistory, ConsoHistory
 from django.urls import path, include
 from rest_framework.routers import DefaultRouter
-from .views import ProductViewSet
+from .views import ProductViewSet, StockViewSet
 
 router = DefaultRouter()
 router.register(r'products', ProductViewSet)
+router.register(r'stock', StockViewSet)
 
 urlpatterns = [
     path('', dashboard, name='dashboard'),

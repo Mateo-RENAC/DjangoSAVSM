@@ -1,3 +1,5 @@
+export {}; // Assurez-vous que cette ligne est au tout début du fichier
+
 import React, { useState, useEffect } from 'react';
 import Table from '@mui/material/Table';
 import TableBody from '@mui/material/TableBody';
@@ -16,7 +18,7 @@ import InputLabel from '@mui/material/InputLabel';
 import InfoIcon from '@mui/icons-material/Info';
 import EditIcon from '@mui/icons-material/Edit';
 
-const List = ({ dataUrl, columns }) => {
+const DataTable = ({ dataUrl, columns }) => {
   const [data, setData] = useState([]);
   const [searchQuery, setSearchQuery] = useState('');
   const [sortBy, setSortBy] = useState('');
@@ -33,12 +35,28 @@ const List = ({ dataUrl, columns }) => {
       .catch(error => console.error('Error fetching data:', error));
   }, [dataUrl]);
 
+  const parseSearchQuery = (query) => {
+    const [columnsPart, valuePart] = query.split(':');
+    const searchColumns = columnsPart ? columnsPart.split(',') : [];
+    const searchValue = valuePart || '';
+    return { searchColumns, searchValue };
+  };
+
   const filteredData = data
-    .filter(item =>
-      columns.some(column =>
-        item[column.field].toString().toLowerCase().includes(searchQuery.toLowerCase())
-      )
-    )
+    .filter(item => {
+      const { searchColumns, searchValue } = parseSearchQuery(searchQuery);
+
+      if (searchColumns.length === 0) {
+        // If no specific columns are specified, search in all columns
+        return columns.some(column =>
+          item[column.field].toString().toLowerCase().includes(searchValue.toLowerCase())
+        );
+      }
+
+      return searchColumns.some(col =>
+        item[col]?.toString().toLowerCase().includes(searchValue.toLowerCase())
+      );
+    })
     .sort((a, b) => {
       if (sortBy === '') return 0;
       if (a[sortBy] < b[sortBy]) return -1;
@@ -55,6 +73,7 @@ const List = ({ dataUrl, columns }) => {
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
           style={{ marginRight: '20px' }}
+          placeholder="col1,col2:value"
         />
         <FormControl variant="outlined">
           <InputLabel>Sort By</InputLabel>
@@ -89,10 +108,6 @@ const List = ({ dataUrl, columns }) => {
                   <IconButton aria-label="info" onClick={() => handleInfoClick(item)}>
                     <InfoIcon />
                   </IconButton>
-                  <IconButton aria-label="edit" onClick={() => handleEditClick(item)}>
-                    <EditIcon />
-                  </IconButton>
-                  <Button variant="contained" color="secondary" onClick={() => handleDeleteClick(item.id)}>Delete</Button>
                 </TableCell>
               </TableRow>
             ))}
@@ -105,7 +120,6 @@ const List = ({ dataUrl, columns }) => {
   function handleInfoClick(item) {
     console.log('Info clicked for:', item);
   }
-
 };
 
-export default List;
+export default DataTable;

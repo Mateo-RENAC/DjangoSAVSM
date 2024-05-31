@@ -113,13 +113,6 @@ const List = ({ dataUrl, columns }) => {
     console.log('Info clicked for:', item);
   }
 
-  function handleEditClick(item) {
-    console.log('Edit clicked for:', item);
-  }
-
-  function handleDeleteClick(itemId) {
-    console.log('Delete clicked for item ID:', itemId);
-  }
 };
 
 export default List;

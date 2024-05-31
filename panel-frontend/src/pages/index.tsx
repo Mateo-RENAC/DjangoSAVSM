@@ -14,6 +14,7 @@ export default function Home() {
       <h1>Home Page</h1>
       <p>Welcome to the Home Page!</p>
         <List dataUrl="http://localhost:8000/panel/api/stock/" columns={productColumns} />
+        <List dataUrl="http://localhost:8000/panel/api/products/" columns={productColumns} />
     </div>
   );
 }

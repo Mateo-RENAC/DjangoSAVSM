@@ -3,7 +3,7 @@ import './styles/globals.css'; // Import global styles
 import { metadata } from './metadata.tsx'; // Import metadata
 import Navbar from "@/components/Navbar";
 
-export default function RootLayout({ children }) {
+export default function RootLayout({ children, isDarkMode, toggleTheme }) {
   return (
     <html lang="en">
       <head>
@@ -12,7 +12,7 @@ export default function RootLayout({ children }) {
         {/* Add any other head tags here */}
       </head>
       <body>
-        <Navbar/>
+        <Navbar isDarkMode={isDarkMode} toggleTheme={toggleTheme} />
         {children}
       </body>
     </html>

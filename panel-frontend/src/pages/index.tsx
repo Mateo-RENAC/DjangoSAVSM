@@ -9,10 +9,15 @@ const HomePage = () => {
     { field: 'product.name', label: 'Product' }
   ];
 
+  const search_columns = [
+      'name',
+      'user_name'
+  ]
+
   return (
     <div>
       <h1>Home Page</h1>
-      <DataTable dataUrl="http://localhost:8000/panel/api/stock/" columns={columns} />
+      <DataTable dataUrl="http://localhost:8000/panel/api/stock/" columns={columns} search_column={search_columns}/>
     </div>
   );
 };

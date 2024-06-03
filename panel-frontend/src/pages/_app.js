@@ -33,7 +33,6 @@ function MyApp({ Component, pageProps }) {
             <Route path="/contact" element={<Contact />} />
           </Routes>
         </div>
-        <Component {...pageProps} />
       </Layout>
     </Router>
   );

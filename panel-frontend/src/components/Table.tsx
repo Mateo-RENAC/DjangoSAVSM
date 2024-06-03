@@ -9,8 +9,10 @@ import Paper from '@mui/material/Paper';
 import TextField from '@mui/material/TextField';
 import IconButton from '@mui/material/IconButton';
 import InfoIcon from '@mui/icons-material/Info';
+import EditIcon from "@mui/icons-material/Edit";
+import DeleteIcon from "@mui/icons-material/Delete";
 
-const List = ({ dataUrl, columns }) => {
+const DataTable = ({ dataUrl, columns }) => {
   const [data, setData] = useState([]);
   const [searchQuery, setSearchQuery] = useState('');
   const [sortConfig, setSortConfig] = useState({ key: null, direction: 'default' });
@@ -110,7 +112,7 @@ const List = ({ dataUrl, columns }) => {
           variant="outlined"
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
-          style={{ marginRight: '20px' }}
+          style={{ marginRight: '20px'}}
           placeholder="col1,col2:value"
         />
       </div>
@@ -118,29 +120,39 @@ const List = ({ dataUrl, columns }) => {
         <Table>
           <TableHead>
             <TableRow>
-              <TableCell style={{ width: '1px', padding: '0 8px' }}></TableCell>
               {columns.map(column => (
                 <TableCell
                   key={column.field}
                   onClick={() => handleSort(column.field)}
-                  style={{ cursor: 'pointer', padding: '8px 8px' }}
+                  style={{ cursor: 'pointer' }}
                 >
                   {column.label} {getSortIndicator(column.field)}
                 </TableCell>
               ))}
+              <TableCell>Actions</TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
             {filteredData.map((item) => (
               <TableRow key={item.id}>
-                <TableCell style={{ padding: '0 8px' }}>
+                {columns.map(column => (
+                  <TableCell key={column.field}>{item[column.field]}</TableCell>
+                ))}
+                <TableCell>
+
                   <IconButton onClick={() => console.log('Info clicked for:', item)}>
                     <InfoIcon />
                   </IconButton>
+
+                  <IconButton onClick={() => console.log('Edit clicked for:', item)}>
+                    <EditIcon />
+                  </IconButton>
+
+                  <IconButton onClick={() => console.log('Delete clicked for:', item)}>
+                    <DeleteIcon />
+                  </IconButton>
+
                 </TableCell>
-                {columns.map(column => (
-                  <TableCell key={column.field} style={{ padding: '8px 8px' }}>{item[column.field]}</TableCell>
-                ))}
               </TableRow>
             ))}
           </TableBody>
@@ -150,4 +162,4 @@ const List = ({ dataUrl, columns }) => {
   );
 };
 
-export default List;
+export default DataTable;

@@ -8,3 +8,4 @@ reportlab==3.6.1
 slackclient==2.9.4
 djangorestframework==3.15.1
 django-cors-headers==4.3.1
+drf-yasg==1.21.7 # For swagger

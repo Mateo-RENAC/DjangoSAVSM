@@ -2,7 +2,8 @@ from django.shortcuts import render, get_object_or_404, redirect
 from django.http import JsonResponse, HttpResponse
 from django.urls import reverse
 from django.db.models import Q
-from .models import Product, Stock, Consumption, StockHistory, ConsoHistory, Alert
+from .models import Product, Stock, StockHistory, Consumption, ConsoHistory, Alert, Batch, Order
+from .serializers import ProductSerializer, StockSerializer, StockHistorySerializer, ConsumptionSerializer, ConsoHistorySerializer, AlertSerializer, BatchSerializer, OrderSerializer
 from .forms import ProductForm
 from io import BytesIO
 from reportlab.lib.pagesizes import letter
@@ -15,8 +16,8 @@ from reportlab.graphics.charts.barcharts import VerticalBarChart
 import json
 from rest_framework import viewsets
 
-from .serializers import ProductSerializer, StockSerializer
 
+## INTERNAL FRONT END
 
 def dashboard(request):
     return render(request, 'dashboard.html')
@@ -375,6 +376,9 @@ def generate_pdf_conso(request):
     response.write(pdf)
     return response
 
+
+## EXTERNAL FRONT END
+
 class ProductViewSet(viewsets.ModelViewSet):
     queryset = Product.objects.all()
     serializer_class = ProductSerializer
@@ -382,3 +386,32 @@ class ProductViewSet(viewsets.ModelViewSet):
 class StockViewSet(viewsets.ModelViewSet):
     queryset = Stock.objects.all()
     serializer_class = StockSerializer
+
+class StockHistoryViewSet(viewsets.ModelViewSet):
+    queryset = StockHistory.objects.all()
+    serializer_class = StockHistorySerializer
+
+class ConsumptionViewSet(viewsets.ModelViewSet):
+    queryset = Consumption.objects.all()
+    serializer_class = ConsumptionSerializer
+
+class ConsoHistoryViewSet(viewsets.ModelViewSet):
+    queryset = ConsoHistory.objects.all()
+    serializer_class = ConsoHistorySerializer
+
+class AlertViewSet(viewsets.ModelViewSet):
+    queryset = Alert.objects.all()
+    serializer_class = AlertSerializer
+
+class BatchViewSet(viewsets.ModelViewSet):
+    queryset = Batch.objects.all()
+    serializer_class = BatchSerializer
+
+class OrderViewSet(viewsets.ModelViewSet):
+    queryset = Order.objects.all()
+    serializer_class = OrderSerializer
+
+def list_stock_and_product_names(request):
+    stocks = Stock.objects.select_related('product').all()
+    results = [{'product_name': stock.product.name, 'stock_count': stock.count, 'pending_count': stock.pending_count} for stock in stocks]
+    return JsonResponse(results, safe=False)

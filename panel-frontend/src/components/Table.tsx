@@ -1,157 +1,139 @@
 import React, { useState, useEffect } from 'react';
-import Table from '@mui/material/Table';
-import TableBody from '@mui/material/TableBody';
-import TableCell from '@mui/material/TableCell';
-import TableContainer from '@mui/material/TableContainer';
-import TableHead from '@mui/material/TableHead';
-import TableRow from '@mui/material/TableRow';
-import Paper from '@mui/material/Paper';
-import TextField from '@mui/material/TextField';
-import IconButton from '@mui/material/IconButton';
+import { TextField, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, IconButton } from '@mui/material';
 import InfoIcon from '@mui/icons-material/Info';
 import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
+import SaveIcon from '@mui/icons-material/Save';
+import CancelIcon from '@mui/icons-material/Cancel';
 
-const DataTable = ({ dataUrl, columns }) => {
+const DataTable = ({ dataUrl }) => {
   const [data, setData] = useState([]);
-  const [searchQuery, setSearchQuery] = useState('');
-  const [sortConfig, setSortConfig] = useState({ key: null, direction: 'default' });
+  const [columns, setColumns] = useState([]);
+  const [editRowId, setEditRowId] = useState(null);
+  const [draftData, setDraftData] = useState({});
 
   useEffect(() => {
-    fetch(dataUrl)
-      .then(response => response.json())
-      .then(data => setData(data))
-      .catch(error => console.error('Error fetching data:', error));
+    fetchData();
   }, [dataUrl]);
 
-  const parseSearchQuery = (query) => {
-    let searchColumns = [];
-    let searchValue = query;
-    let operator = ':';
-
-    if (query.includes(':')) {
-      [searchColumns, searchValue] = query.split(':');
-      searchColumns = searchColumns ? searchColumns.split(',') : [];
-      operator = ':';
-    } else if (query.includes('=')) {
-      [searchColumns, searchValue] = query.split('=');
-      searchColumns = searchColumns ? searchColumns.split(',') : [];
-      operator = '=';
-    } else if (query.includes('>')) {
-      [searchColumns, searchValue] = query.split('>');
-      searchColumns = searchColumns ? searchColumns.split(',') : [];
-      operator = '>';
-    } else if (query.includes('<')) {
-      [searchColumns, searchValue] = query.split('<');
-      searchColumns = searchColumns ? searchColumns.split(',') : [];
-      operator = '<';
-    } else {
-      // Default to the first column if no operator is present
-      searchColumns = [columns[0].field];
-      searchValue = query;
-    }
-
-    // Convert searchColumns to lowercase
-    searchColumns = searchColumns.map(col => col.toLowerCase());
-
-    return { searchColumns, searchValue: searchValue.toLowerCase(), operator };
-  };
-
-  const filteredData = data
-    .filter(item => {
-      const { searchColumns, searchValue, operator } = parseSearchQuery(searchQuery);
-
-      return searchColumns.some(col => {
-        const itemValue = String(item[col]).toLowerCase();
-
-        switch (operator) {
-          case ':':
-            return itemValue.includes(searchValue);
-          case '=':
-            return itemValue === searchValue;
-          case '>':
-            return parseFloat(itemValue) > parseFloat(searchValue);
-          case '<':
-            return parseFloat(itemValue) < parseFloat(searchValue);
-          default:
-            return false;
+  const fetchData = () => {
+    fetch(dataUrl)
+      .then(response => response.json())
+      .then(data => {
+        setData(data);
+        // Automatically generate columns from the first item
+        if (data.length > 0) {
+          const columnNames = Object.keys(data[0]);
+          const formattedColumns = columnNames.map(name => ({
+            field: name,
+            label: name.charAt(0).toUpperCase() + name.slice(1).replace(/_/g, ' ')  // Capitalize and replace underscores
+          }));
+          setColumns(formattedColumns);
         }
-      });
-    })
-    .sort((a, b) => {
-      if (sortConfig.key === null || sortConfig.direction === 'default') return 0;
-      const direction = sortConfig.direction === 'ascending' ? 1 : -1;
-      if (a[sortConfig.key] < b[sortConfig.key]) return -1 * direction;
-      if (a[sortConfig.key] > b[sortConfig.key]) return 1 * direction;
-      return 0;
-    });
-
-  const handleSort = (columnKey) => {
-    let direction = 'ascending';
-    if (sortConfig.key === columnKey && sortConfig.direction === 'ascending') {
-      direction = 'descending';
-    } else if (sortConfig.key === columnKey && sortConfig.direction === 'descending') {
-      direction = 'default';
-    }
-    setSortConfig({ key: columnKey, direction });
+      })
+      .catch(error => console.error('Error fetching data:', error));
   };
 
-  const getSortIndicator = (columnKey) => {
-    if (sortConfig.key === columnKey) {
-      if (sortConfig.direction === 'ascending') return '↑';
-      if (sortConfig.direction === 'descending') return '↓';
-    }
-    return null;
+  const toggleEdit = (item) => {
+    setEditRowId(item.id);
+    setDraftData(item);
+  };
+
+  const cancelEdit = () => {
+    setEditRowId(null);
+    setDraftData({});
+  };
+
+  const handleEditChange = (field, value) => {
+    setDraftData(prev => ({ ...prev, [field]: value }));
+  };
+
+  const saveEdit = (id) => {
+    const updateUrl = `${dataUrl}${id}/`; // Ensure this URL matches your Django endpoint
+    fetch(updateUrl, {
+      method: 'PATCH',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(draftData)
+    })
+    .then(response => {
+      if (!response.ok) {
+        throw new Error('Failed to update');
+      }
+      return response.json();
+    })
+    .then(updatedItem => {
+      setData(data.map(item => item.id === id ? { ...item, ...updatedItem } : item));
+      setEditRowId(null);
+      setDraftData({});
+    })
+    .catch(error => console.error('Failed to update:', error));
+  };
+
+  const deleteItem = (id) => {
+    const deleteUrl = `${dataUrl}${id}/`; // Ensure this URL matches your Django endpoint
+    fetch(deleteUrl, {
+      method: 'DELETE',
+    })
+    .then(response => {
+      if (!response.ok) {
+        throw new Error('Failed to delete');
+      }
+      setData(data.filter(item => item.id !== id));
+    })
+    .catch(error => console.error('Failed to delete:', error));
   };
 
   return (
     <div>
-      <div style={{ display: 'flex', marginBottom: '20px' }}>
-        <TextField
-          label="Search"
-          variant="outlined"
-          value={searchQuery}
-          onChange={(e) => setSearchQuery(e.target.value)}
-          style={{ marginRight: '20px'}}
-          placeholder="col1,col2:value"
-        />
-      </div>
+      <TextField
+        label="Search"
+        variant="outlined"
+        fullWidth
+        style={{ marginBottom: '20px' }}
+        onChange={event => console.log(event.target.value)}
+        placeholder="Search..."
+      />
       <TableContainer component={Paper}>
         <Table>
           <TableHead>
             <TableRow>
               {columns.map(column => (
-                <TableCell
-                  key={column.field}
-                  onClick={() => handleSort(column.field)}
-                  style={{ cursor: 'pointer' }}
-                >
-                  {column.label} {getSortIndicator(column.field)}
-                </TableCell>
+                <TableCell key={column.field}>{column.label}</TableCell>
               ))}
               <TableCell>Actions</TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
-            {filteredData.map((item) => (
+            {data.map((item) => (
               <TableRow key={item.id}>
                 {columns.map(column => (
-                  <TableCell key={column.field}>{item[column.field]}</TableCell>
+                  <TableCell key={column.field}>
+                    {editRowId === item.id ? (
+                      <TextField
+                        value={draftData[column.field] || ''}
+                        onChange={(e) => handleEditChange(column.field, e.target.value)}
+                        size="small"
+                        fullWidth
+                      />
+                    ) : (
+                      item[column.field]
+                    )}
+                  </TableCell>
                 ))}
                 <TableCell>
-
-                  <IconButton onClick={() => console.log('Info clicked for:', item)}>
-                    <InfoIcon />
-                  </IconButton>
-
-                  <IconButton onClick={() => console.log('Edit clicked for:', item)}>
-                    <EditIcon />
-                  </IconButton>
-
-                  <IconButton onClick={() => console.log('Delete clicked for:', item)}>
-                    <DeleteIcon />
-                  </IconButton>
-
+                  {editRowId === item.id ? (
+                    <>
+                      <IconButton onClick={() => saveEdit(item.id)}><SaveIcon /></IconButton>
+                      <IconButton onClick={cancelEdit}><CancelIcon /></IconButton>
+                    </>
+                  ) : (
+                    <>
+                      <IconButton onClick={() => toggleEdit(item)}><EditIcon /></IconButton>
+                      <IconButton onClick={() => deleteItem(item.id)}><DeleteIcon /></IconButton>
+                    </>
+                  )}
                 </TableCell>
               </TableRow>
             ))}

@@ -1,3 +1,4 @@
+// pages/_app.js
 "use client"; // Add this directive
 
 import { useEffect, useState } from "react";
@@ -8,18 +9,12 @@ import About from "./about";
 import Contact from "./contact";
 import Layout from '../app/layout';
 import Home from "./index";
-import "../app/styles/globals.css"; // Import global styles
+import "../app/styles/globals.css";
+import ListBoard from "./ListBoard"; // Import global styles
 
 const isChromium = () => {
   const userAgent = navigator.userAgent;
   return /Chrome|Chromium/.test(userAgent) && !/Edge|Edg|OPR/.test(userAgent);
-};
-
-const loadCSS = (href) => {
-  const link = document.createElement('link');
-  link.rel = 'stylesheet';
-  link.href = href;
-  document.head.appendChild(link);
 };
 
 function MyApp({ Component, pageProps }) {
@@ -57,17 +52,13 @@ function MyApp({ Component, pageProps }) {
   }, []);
 
   const applyTheme = (darkMode) => {
-    document.querySelectorAll('link[rel="stylesheet"][href*="theme"]').forEach((link) => link.remove());
-
     if (darkMode) {
-      loadCSS('@/app/styles/dark-theme.css');
       document.body.classList.add('dark-mode');
       document.body.classList.remove('light-mode');
       if (isChromium() && isChromeDarkMode) {
         document.body.classList.remove('invert-colors');
       }
     } else {
-      loadCSS('@/app/styles/light-theme.css');
       document.body.classList.add('light-mode');
       document.body.classList.remove('dark-mode');
       if (isChromium() && isChromeDarkMode) {
@@ -95,6 +86,7 @@ function MyApp({ Component, pageProps }) {
           <Routes>
             <Route path="/" element={<Home />} />
             <Route path="/graphboard" element={<GraphBoard />} />
+            <Route path="/ListBoard" element={<ListBoard />} />
             <Route path="/about" element={<About />} />
             <Route path="/contact" element={<Contact />} />
           </Routes>

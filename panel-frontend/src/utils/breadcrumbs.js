@@ -4,6 +4,7 @@ import { useLocation } from 'react-router-dom';
 const breadcrumbNameMap = {
   '/': 'Home',
   '/graphboard': 'Graphboard',
+  '/ListBoard': 'ListBoard',
   '/about': 'About',
   '/contact': 'Contact',
 };

@@ -1,3 +1,4 @@
+// app/layout.tsx
 import './styles/globals.css'; // Import global styles
 import { metadata } from './metadata.tsx'; // Import metadata
 import Navbar from "@/components/Navbar";

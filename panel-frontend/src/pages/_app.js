@@ -1,23 +1,42 @@
 // src/pages/_app.js
 "use client"; // Add this directive
 
+import { useEffect, useState } from "react";
+import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
+import Breadcrumb from "../components/Breadcrumb";
+import GraphBoard from "./graphBoard";
+import About from "./about";
+import Contact from "./contact";
 import Layout from '../app/layout';
-import {useEffect, useState} from "react";
+import Home from "./index";
 
-export default function MyApp({ Component, pageProps }) {
-  const [isClient, setIsClient] = useState(false)
+function MyApp({ Component, pageProps }) {
+  const [isClient, setIsClient] = useState(false);
 
   useEffect(() => {
-    setIsClient(true)
-  }, [])
+    setIsClient(true);
+  }, []);
 
-  if(isClient)
-  {
-    return (
-        <Layout>
-          <Component {...pageProps} />
-        </Layout>);
+  if (!isClient) {
+    return <h1>Loading...</h1>; // Display loading indicator while client-side rendering is set up
   }
 
-  return <h1></h1>;
+  return (
+    <Router>
+      <Layout>
+        <div className="app">
+          <Breadcrumb separator=">" />
+          <Routes>
+            <Route path="/" element={<Home />} />
+            <Route path="/graphboard" element={<GraphBoard />} />
+            <Route path="/about" element={<About />} />
+            <Route path="/contact" element={<Contact />} />
+          </Routes>
+        </div>
+        <Component {...pageProps} />
+      </Layout>
+    </Router>
+  );
 }
+
+export default MyApp;

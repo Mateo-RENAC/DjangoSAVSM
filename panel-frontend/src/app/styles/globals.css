@@ -1,3 +1,6 @@
+/*
+  app/styles/global.css
+ */
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -19,6 +22,9 @@ html, body, #__next {
   padding: 1rem;
   background-color: #f0f0f0;
 }
+
+/* GRAPH
+*/
 
 .dashboard-container {
   display: flex;
@@ -94,4 +100,37 @@ html, body, #__next {
   padding: 5px 10px;
   cursor: pointer;
   margin-right: 5px;
+}
+
+/* Breadcrumb
+ */
+
+.breadcrumb {
+  display: flex;
+  align-items: center;
+  font-size: 14px;
+  margin: 10px 0;
+}
+
+.breadcrumb-item {
+  display: flex;
+  align-items: center;
+}
+
+.breadcrumb-link {
+  color: #007bff;
+  text-decoration: none;
+}
+
+.breadcrumb-link:hover {
+  text-decoration: underline;
+}
+
+.breadcrumb-label {
+  color: #6c757d;
+}
+
+.breadcrumb-separator {
+  margin: 0 8px;
+  color: #6c757d;
 }

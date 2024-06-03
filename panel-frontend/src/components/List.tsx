@@ -1,5 +1,3 @@
-export {}; // Assurez-vous que cette ligne est au tout début du fichier
-
 import React, { useState, useEffect } from 'react';
 import Table from '@mui/material/Table';
 import TableBody from '@mui/material/TableBody';
@@ -8,15 +6,11 @@ import TableContainer from '@mui/material/TableContainer';
 import TableHead from '@mui/material/TableHead';
 import TableRow from '@mui/material/TableRow';
 import Paper from '@mui/material/Paper';
-import IconButton from '@mui/material/IconButton';
-import Button from '@mui/material/Button';
 import TextField from '@mui/material/TextField';
 import MenuItem from '@mui/material/MenuItem';
 import Select from '@mui/material/Select';
 import FormControl from '@mui/material/FormControl';
 import InputLabel from '@mui/material/InputLabel';
-import InfoIcon from '@mui/icons-material/Info';
-import EditIcon from '@mui/icons-material/Edit';
 
 const DataTable = ({ dataUrl, columns }) => {
   const [data, setData] = useState([]);
@@ -25,12 +19,7 @@ const DataTable = ({ dataUrl, columns }) => {
 
   useEffect(() => {
     fetch(dataUrl)
-      .then(response => {
-        if (!response.ok) {
-          throw new Error('Network response was not ok');
-        }
-        return response.json();
-      })
+      .then(response => response.json())
       .then(data => setData(data))
       .catch(error => console.error('Error fetching data:', error));
   }, [dataUrl]);
@@ -48,14 +37,16 @@ const DataTable = ({ dataUrl, columns }) => {
 
       if (searchColumns.length === 0) {
         // If no specific columns are specified, search in all columns
-        return columns.some(column =>
-          item[column.field].toString().toLowerCase().includes(searchValue.toLowerCase())
-        );
+        return columns.some(column => {
+          const itemField = item[column.field];
+          return itemField !== undefined && itemField.toString().toLowerCase().includes(searchValue.toLowerCase());
+        });
       }
 
-      return searchColumns.some(col =>
-        item[col]?.toString().toLowerCase().includes(searchValue.toLowerCase())
-      );
+      return searchColumns.some(col => {
+        const itemField = item[col];
+        return itemField !== undefined && itemField.toString().toLowerCase().includes(searchValue.toLowerCase());
+      });
     })
     .sort((a, b) => {
       if (sortBy === '') return 0;
@@ -105,9 +96,7 @@ const DataTable = ({ dataUrl, columns }) => {
                   <TableCell key={column.field}>{item[column.field]}</TableCell>
                 ))}
                 <TableCell>
-                  <IconButton aria-label="info" onClick={() => handleInfoClick(item)}>
-                    <InfoIcon />
-                  </IconButton>
+                  <button onClick={() => console.log('Info clicked for:', item)}>Info</button>
                 </TableCell>
               </TableRow>
             ))}
@@ -116,10 +105,6 @@ const DataTable = ({ dataUrl, columns }) => {
       </TableContainer>
     </div>
   );
-
-  function handleInfoClick(item) {
-    console.log('Info clicked for:', item);
-  }
 };
 
 export default DataTable;

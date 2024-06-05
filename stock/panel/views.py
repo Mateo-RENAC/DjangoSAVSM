@@ -1,3 +1,4 @@
+from django.db import connection
 from django.shortcuts import render, get_object_or_404, redirect
 from django.http import JsonResponse, HttpResponse
 from django.urls import reverse
@@ -15,6 +16,8 @@ from reportlab.graphics.shapes import Drawing
 from reportlab.graphics.charts.barcharts import VerticalBarChart
 import json
 from rest_framework import viewsets
+import requests
+from django.db import models
 
 
 ## INTERNAL FRONT END
@@ -415,3 +418,72 @@ def list_stock_and_product_names(request):
     stocks = Stock.objects.select_related('product').all()
     results = [{'product_name': stock.product.name, 'stock_count': stock.count, 'pending_count': stock.pending_count} for stock in stocks]
     return JsonResponse(results, safe=False)
+
+
+
+#View Shortcut
+
+from django.apps import apps
+
+
+def get_column_type(request):
+    if request.method == 'GET':
+        table_name = request.GET.get('table_name')
+        column_name = request.GET.get('column_name')
+
+        if table_name and column_name:
+            model = apps.get_model(app_label='panel', model_name=table_name)
+            if model:
+                field = model._meta.get_field(column_name)
+                column_type = field.get_internal_type()
+                return JsonResponse({'column_type': column_type})
+
+    return JsonResponse({'error': 'Invalid request'}, status=400)
+
+
+def get_table_list(request):
+    if request.method == 'GET':
+        tables = connection.introspection.table_names()
+        # Filtrer les tables qui commencent par "panel"
+        filtered_tables = [table for table in tables if table.startswith("panel")]
+        return JsonResponse({'tables': filtered_tables})
+    return JsonResponse({'error': 'Invalid request'}, status=400)
+
+
+def get_column_list(request):
+    if request.method == 'GET':
+        table_name = request.GET.get('table_name')
+
+        if table_name:
+            model = get_model_from_table_name(table_name)
+            if model:
+                columns = []
+                for field in model._meta.get_fields():
+                    if isinstance(field, (models.IntegerField, models.BooleanField)) and field.name != 'id':
+                        columns.append(field.name)
+                return JsonResponse({'columns': columns})
+            else:
+                return JsonResponse({'error': f'No model found for table {table_name}'}, status=400)
+        else:
+            return JsonResponse({'error': 'Missing table_name parameter'}, status=400)
+    return JsonResponse({'error': 'Invalid request'}, status=400)
+
+
+def fetch_column_type(table_name, column_name):
+    try:
+        response = requests.get(f'http://localhost:8000/panel/get_column_type/?table_name={table_name}&column_name={column_name}')
+        if response.status_code == 200:
+            return response.json()
+        return {'error': 'Failed to fetch column type', 'status_code': response.status_code}
+    except requests.exceptions.RequestException as e:
+        return {'error': str(e)}
+
+
+def get_model_from_table_name(table_name):
+    for app_config in apps.get_app_configs():
+        for model in app_config.get_models():
+            if model._meta.db_table == table_name:
+                return model
+    return None
+
+

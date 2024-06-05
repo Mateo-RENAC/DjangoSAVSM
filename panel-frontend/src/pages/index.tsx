@@ -1,14 +1,16 @@
 // pages/index.tsx
 import React from 'react';
-import DataTable from "@/components/Table";
+import ShortcutPanel from "@/components/ShortcutManager";
 
 const HomePage = () => {
 
   return (
-    <div>
-        <h1>Home Page</h1>
-        <DataTable dataUrl="http://localhost:8000/panel/api/products/"/>
-    </div>
+      <div className="App">
+          <header className="App-header">
+              <h1>Mon Application</h1>
+              <ShortcutPanel/>
+          </header>
+      </div>
   );
 };
 

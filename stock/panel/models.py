@@ -70,3 +70,23 @@ class Alert(models.Model):
 
     def __str__(self):
         return f"Alert for {self.product.name}"
+
+
+class Shortcut(models.Model):
+
+    ACTIONS_TYPES = [
+        ('increase', 'Increase'),
+        ('decrease', 'Decrease'),
+        ('set', 'Set'),
+        ('toggle', 'Toggle'),
+    ]
+
+    name = models.CharField(max_length=100)
+    action_type = models.CharField(max_length=50, choices=ACTIONS_TYPES)
+    action_value = models.CharField(max_length=50, null=True, blank=True)
+    target_table = models.CharField(max_length=50)
+    target_column = models.CharField(max_length=50)
+    target_line = models.CharField(max_length=50)
+
+    def __str__(self):
+        return f"{self.target_table}.{self.target_column} [{self.action_type}]"

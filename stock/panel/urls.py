@@ -1,14 +1,16 @@
 from django.urls import path
 from .views import (
     dashboard, product_list, product_add, product_edit, product_delete, product_detail,
-    bar_graph, historical_graph, generate_pdf_stock, generate_pdf_conso, alert_table, product_search, graph_page, instantaneous_data, historical_data,
-    ProductViewSet, StockViewSet, StockHistoryViewSet, ConsumptionViewSet, ConsoHistoryViewSet, AlertViewSet, BatchViewSet, OrderViewSet,    list_stock_and_product_names
+    bar_graph, historical_graph, generate_pdf_stock, generate_pdf_conso, alert_table, product_search, graph_page,
+    instantaneous_data, historical_data,
+    ProductViewSet, StockViewSet, StockHistoryViewSet, ConsumptionViewSet, ConsoHistoryViewSet, AlertViewSet,
+    BatchViewSet, OrderViewSet, list_stock_and_product_names, get_table_list, get_column_list, create_shortcut, get_rows
 
 )
 from .models import StockHistory, ConsoHistory
 from django.urls import path, include
 from rest_framework.routers import DefaultRouter
-from .views import ProductViewSet, StockViewSet
+from .views import ProductViewSet, StockViewSet,get_column_type
 from django.urls import re_path
 from drf_yasg.views import get_schema_view
 from drf_yasg import openapi
@@ -57,6 +59,11 @@ urlpatterns = [
     path('graphs/', graph_page, name='graph_page'),
     path('instantaneous-data/', instantaneous_data, name='instantaneous_data'),
     path('historical-data/', historical_data, name='historical_data'),
+    path('get_column_type/', get_column_type, name='get_column_type'),
+    path('get_table_list/', get_table_list, name='get_table_list'),
+    path('get_column_list/', get_column_list, name='get_column_list'),
+    path('panel/create_shortcut/', create_shortcut, name='create_shortcut'),
+    path('panel/get_rows/', get_rows, name='get_rows'),
 
     # API
     path('api/', include(router.urls)),

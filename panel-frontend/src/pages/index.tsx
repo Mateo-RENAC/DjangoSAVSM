@@ -1,6 +1,6 @@
 // pages/index.tsx
 import React from 'react';
-import DataTable from "@/components/Table";
+import ShortcutPanel from "@/components/ShortcutManager";
 
 const HomePage = () => {
 

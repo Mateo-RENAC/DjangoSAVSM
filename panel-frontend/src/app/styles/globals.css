@@ -189,6 +189,7 @@ body.dark-mode .breadcrumb-link {
   color: #80d8ff !important;
 }
 
+<<<<<<< HEAD
 
 
 body {
@@ -201,4 +202,50 @@ body {
 .PageTest {
   text-align: center;
   padding: 20px;
+=======
+/* src/App.css */
+.App {
+  text-align: center;
+}
+
+/* Styles for select elements */
+select {
+  background-color: white;
+  color: black;
+  border: 1px solid #ccc;
+  padding: 10px;
+  font-size: 16px;
+  border-radius: 5px;
+  margin: 10px 0;
+}
+
+/* Styles for options inside select elements */
+select option {
+  background-color: white;
+  color: black;
+  padding: 10px;
+  font-size: 16px;
+}
+
+/* Hover effect for select element */
+select:hover {
+  border-color: #888;
+}
+
+/* Dark mode styles for select elements */
+body.dark-mode select {
+  background-color: #333;
+  color: white;
+  border: 1px solid #555;
+}
+
+body.dark-mode select option {
+  background-color: #333;
+  color: white;
+}
+
+/* Hover effect for select element in dark mode */
+body.dark-mode select:hover {
+  border-color: #888;
+>>>>>>> 4e7b4fa9dd66a085b8746b6a00eb678d4e8bdd39
 }

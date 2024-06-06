@@ -1,32 +1,73 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import DashboardContainer from '../components/graph/DashboardContainer';
 import Breadcrumb from "@/components/Breadcrumb";
 
-const sampleGraphs = [
-  { type: 'line', content: [{ label: 'Jan', value: 30 }, { label: 'Feb', value: 20 }, { label: 'Mar', value: 50 }], title: 'Line Chart', scale: 1, colors: ['#29675e'], weight: 1 },
-  { type: 'bar', content: [{ label: 'A', value: 12 }, { label: 'B', value: 19 }, { label: 'C', value: 3 }], title: 'Bar Chart', scale: 1, colors: ['#4f1d65'], weight: 2 },
-  { type: 'pie', content: [{ label: 'Red', value: 10 }, { label: 'Blue', value: 20 }, { label: 'Yellow', value: 30 }], title: 'Pie Chart', scale: 1, colors: ['#8c3d4e', '#36759e', '#9d802b'], weight: 1 },
-  { type: 'bar', content: [{ label: 'A', value: 12 }, { label: 'B', value: 19 }, { label: 'C', value: 3 }], title: 'Bar Chart', scale: 1, colors: ['#0b7a9f'], weight: 20 },
-  { type: 'bar', content: [{ label: 'A', value: 56 }, { label: 'B', value: 19 }, { label: 'C', value: 90 }], title: 'Bar Chart', scale: 1, colors: ['#257f25'], weight: 20 },
-  { type: 'bar', content: [{ label: 'A', value: 12 }, { label: 'B', value: 72 }, { label: 'C', value: 3 }], title: 'Bar Chart', scale: 1, colors: ['#651717'], weight: 20 },
-  { type: 'bar', content: [{ label: 'A', value: 36 }, { label: 'B', value: 19 }, { label: 'C', value: 3 }], title: 'Bar Chart', scale: 1, colors: ['#935724'], weight: 20 },
-  { type: 'line', content: [{ label: 'Jan', value: 30 }, { label: 'Feb', value: 20 }, { label: 'Mar', value: 50 }], title: 'Line Chart', scale: 1, colors: ['#3b2967'], weight: 1 },
-  { type: 'pie', content: [{ label: 'Red', value: 10 }, { label: 'Blue', value: 20 }, { label: 'Yellow', value: 30 }], title: 'Pie Chart', scale: 1, colors: ['#8c3d4e', '#36759e', '#9d802b'], weight: 1 },
-  { type: 'radar', content: [{ label: 'Red', value: 10 }, { label: 'Blue', value: 20 }, { label: 'Yellow', value: 30 }], title: 'Pie Chart', scale: 1, colors: ['#8c3d4e', '#36759e', '#9d802b'], weight: 1 },
-
-];
-
-const settings = {
-  width: '100%',
-  title: 'Customizable Dashboard',
-  numberOfColumns: 5,
-  gap: '4px' // Set the gap between graph containers
-};
-
 const GraphBoard = () => {
+  const [graphs, setGraphs] = useState([]);
+  const settings = {
+    width: '100%',
+    title: 'Customizable Dashboard',
+    numberOfColumns: 5,
+    gap: '4px' // Set the gap between graph containers
+  };
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const stockResponse = await fetch('http://localhost:8000/panel/api/stock/');
+        const consumptionResponse = await fetch('http://localhost:8000/panel/api/consumption/');
+        const stockHistoryResponse = await fetch('http://localhost:8000/panel/api/stock-history/');
+        const consumptionHistoryResponse = await fetch('http://localhost:8000/panel/api/consumption-history/');
+
+        const stockData = await stockResponse.json();
+        const consumptionData = await consumptionResponse.json();
+        const stockHistoryData = await stockHistoryResponse.json();
+        const consumptionHistoryData = await consumptionHistoryResponse.json();
+
+        const stockGraph = {
+          type: 'bar',
+          labels: stockData.map(item => item.product),
+          data: stockData.map(item => ({ label: item.product, values: [item.count] })),
+          title: 'Stock Bar Chart',
+          colors: ['#29675e'],
+        };
+
+        const consumptionGraph = {
+          type: 'bar',
+          labels: consumptionData.map(item => item.product),
+          data: consumptionData.map(item => ({ label: item.product, values: [item.count] })),
+          title: 'Consumption Bar Chart',
+          colors: ['#4f1d65'],
+        };
+
+        const stockHistoryGraph = {
+          type: 'line',
+          labels: stockHistoryData.map(item => item.date.split('T')[0]),
+          data: stockHistoryData.map(item => ({ label: item.product, values: [item.count] })),
+          title: 'Stock History Curve',
+          colors: ['#8c3d4e'],
+        };
+
+        const consumptionHistoryGraph = {
+          type: 'line',
+          labels: consumptionHistoryData.map(item => item.date.split('T')[0]),
+          data: consumptionHistoryData.map(item => ({ label: item.product, values: [item.count] })),
+          title: 'Consumption History Curve',
+          colors: ['#36759e'],
+        };
+
+        setGraphs([stockGraph, consumptionGraph, stockHistoryGraph, consumptionHistoryGraph]);
+      } catch (error) {
+        console.error('Error fetching data:', error);
+      }
+    };
+
+    fetchData();
+  }, []);
+
   return (
     <div className="app">
-      <DashboardContainer graphs={sampleGraphs} settings={settings} />
+      <DashboardContainer graphs={graphs} settings={settings} />
     </div>
   );
 };

@@ -188,3 +188,17 @@ body.dark-mode .taskbar button {
 body.dark-mode .breadcrumb-link {
   color: #80d8ff !important;
 }
+
+
+
+body {
+  font-family: Arial, sans-serif;
+  margin: 0;
+  padding: 0;
+  background-color: #f4f4f4;
+}
+
+.PageTest {
+  text-align: center;
+  padding: 20px;
+}

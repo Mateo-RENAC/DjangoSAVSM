@@ -10,7 +10,8 @@ import Contact from "./contact";
 import Layout from '../app/layout';
 import Home from "./index";
 import "../app/styles/globals.css";
-import ListBoard from "./ListBoard"; // Import global styles
+import ListBoard from "./ListBoard";
+import PageTest from "./PageTest"; // Import global styles
 
 const isChromium = () => {
   const userAgent = navigator.userAgent;
@@ -89,6 +90,7 @@ function MyApp({ Component, pageProps }) {
             <Route path="/ListBoard" element={<ListBoard />} />
             <Route path="/about" element={<About />} />
             <Route path="/contact" element={<Contact />} />
+            <Route path="/PageTest" element={<PageTest />} />
           </Routes>
         </div>
       </Layout>

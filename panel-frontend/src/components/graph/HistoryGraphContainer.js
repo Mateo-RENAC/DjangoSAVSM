@@ -4,10 +4,14 @@ import ShowHideButton from './ShowHideButton';
 import { ResizableBox } from 'react-resizable';
 import { FaSearchPlus, FaSearchMinus } from 'react-icons/fa';
 import 'react-resizable/css/styles.css';
+import DateRangeSlider from '../DateRangeSlider';
 
-const GraphContainer = ({ graph, isVisible, onToggleVisibility, gap }) => {
+const HistoryGraphContainer = ({ graph, isVisible, onToggleVisibility, gap }) => {
   const [zoomLevel, setZoomLevel] = useState(1);
   const [minSize, setMinSize] = useState({ minWidth: 150, minHeight: 150 });
+  const [minDate, setMinDate] = useState(new Date('2020-01-01'));
+  const [maxDate, setMaxDate] = useState(new Date());
+  const [interval, setInterval] = useState('day');
   const graphRef = useRef();
 
   useEffect(() => {
@@ -42,6 +46,12 @@ const GraphContainer = ({ graph, isVisible, onToggleVisibility, gap }) => {
     if (event.shiftKey) {
       setZoomLevel(prevZoom => Math.max(0.5, Math.min(2, prevZoom + event.deltaY * -0.01)));
     }
+  };
+
+  const handleDateChange = (start, end) => {
+    setMinDate(start);
+    setMaxDate(end);
+    // Apply your data filtering logic here based on start and end dates
   };
 
   return (
@@ -84,10 +94,13 @@ const GraphContainer = ({ graph, isVisible, onToggleVisibility, gap }) => {
               <FaSearchMinus />
             </button>
           </div>
+          <div className="date-range-picker" style={{ position: 'absolute', bottom: '10px', left: '10px', right: '10px', display: 'flex', flexDirection: 'column', gap: '10px' }}>
+            <DateRangeSlider minDate={minDate} maxDate={maxDate} onDateChange={handleDateChange} />
+          </div>*/
         </div>
       </ResizableBox>
     </div>
   );
 };
 
-export default GraphContainer;
+export default HistoryGraphContainer;

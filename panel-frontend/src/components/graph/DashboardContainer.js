@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import GraphContainer from './GraphContainer';
+import HistoryGraphContainer from './HistoryGraphContainer';
 import Title from './Title';
 
 const DashboardContainer = ({ graphs, settings }) => {
@@ -39,12 +40,23 @@ const DashboardContainer = ({ graphs, settings }) => {
       </div>
       <div className="graphs-grid" style={{ gap }}>
         {graphs.map((graph, index) => (
-          <GraphContainer
-            key={index}
-            graph={graph}
-            isVisible={!hiddenGraphs.includes(index)}
-            onToggleVisibility={() => toggleGraphVisibility(index)}
-          />
+          graph.type === 'line' ? (
+            <HistoryGraphContainer
+              key={index}
+              graph={graph}
+              isVisible={!hiddenGraphs.includes(index)}
+              onToggleVisibility={() => toggleGraphVisibility(index)}
+              gap={gap}
+            />
+          ) : (
+            <GraphContainer
+              key={index}
+              graph={graph}
+              isVisible={!hiddenGraphs.includes(index)}
+              onToggleVisibility={() => toggleGraphVisibility(index)}
+              gap={gap}
+            />
+          )
         ))}
       </div>
     </div>

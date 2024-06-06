@@ -4,7 +4,7 @@ from .views import (
     bar_graph, historical_graph, generate_pdf_stock, generate_pdf_conso, alert_table, product_search, graph_page,
     instantaneous_data, historical_data,
     ProductViewSet, StockViewSet, StockHistoryViewSet, ConsumptionViewSet, ConsoHistoryViewSet, AlertViewSet,
-    BatchViewSet, OrderViewSet, list_stock_and_product_names, get_table_list, get_column_list
+    BatchViewSet, OrderViewSet, list_stock_and_product_names, get_table_list, get_column_list, create_shortcut, get_rows
 
 )
 from .models import StockHistory, ConsoHistory
@@ -62,6 +62,8 @@ urlpatterns = [
     path('get_column_type/', get_column_type, name='get_column_type'),
     path('get_table_list/', get_table_list, name='get_table_list'),
     path('get_column_list/', get_column_list, name='get_column_list'),
+    path('panel/create_shortcut/', create_shortcut, name='create_shortcut'),
+    path('panel/get_rows/', get_rows, name='get_rows'),
 
     # API
     path('api/', include(router.urls)),

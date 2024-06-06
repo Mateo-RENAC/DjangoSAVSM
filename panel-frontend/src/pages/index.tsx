@@ -8,7 +8,7 @@ const HomePage = () => {
       <div className="App">
           <header className="App-header">
               <h1>Mon Application</h1>
-              <ShortcutPanel/>
+
           </header>
       </div>
   );

@@ -3,7 +3,7 @@ from django.shortcuts import render, get_object_or_404, redirect
 from django.http import JsonResponse, HttpResponse
 from django.urls import reverse
 from django.db.models import Q
-from .models import Product, Stock, StockHistory, Consumption, ConsoHistory, Alert, Batch, Order
+from .models import Product, Stock, StockHistory, Consumption, ConsoHistory, Alert, Batch, Order, Shortcut
 from .serializers import ProductSerializer, StockSerializer, StockHistorySerializer, ConsumptionSerializer, ConsoHistorySerializer, AlertSerializer, BatchSerializer, OrderSerializer
 from .forms import ProductForm
 from io import BytesIO
@@ -424,6 +424,7 @@ def list_stock_and_product_names(request):
 #View Shortcut
 
 from django.apps import apps
+from django.views.decorators.csrf import csrf_exempt
 
 
 def get_column_type(request):
@@ -432,22 +433,28 @@ def get_column_type(request):
         column_name = request.GET.get('column_name')
 
         if table_name and column_name:
-            model = apps.get_model(app_label='panel', model_name=table_name)
+            model = get_model_from_table_name(table_name)
             if model:
-                field = model._meta.get_field(column_name)
-                column_type = field.get_internal_type()
-                return JsonResponse({'column_type': column_type})
+                try:
+                    field = model._meta.get_field(column_name)
+                    column_type = field.get_internal_type()
+                    return JsonResponse({'column_type': column_type})
+                except Exception as e:
+                    return JsonResponse({'error': str(e)}, status=400)
+            else:
+                return JsonResponse({'error': 'Model not found'}, status=404)
 
     return JsonResponse({'error': 'Invalid request'}, status=400)
+
 
 
 def get_table_list(request):
     if request.method == 'GET':
         tables = connection.introspection.table_names()
-        # Filtrer les tables qui commencent par "panel"
         filtered_tables = [table for table in tables if table.startswith("panel")]
         return JsonResponse({'tables': filtered_tables})
     return JsonResponse({'error': 'Invalid request'}, status=400)
+
 
 
 def get_column_list(request):
@@ -459,7 +466,7 @@ def get_column_list(request):
             if model:
                 columns = []
                 for field in model._meta.get_fields():
-                    if isinstance(field, (models.IntegerField, models.BooleanField)) and field.name != 'id':
+                    if not isinstance(field, models.CharField) and field.name != 'id':
                         columns.append(field.name)
                 return JsonResponse({'columns': columns})
             else:
@@ -467,7 +474,6 @@ def get_column_list(request):
         else:
             return JsonResponse({'error': 'Missing table_name parameter'}, status=400)
     return JsonResponse({'error': 'Invalid request'}, status=400)
-
 
 def fetch_column_type(table_name, column_name):
     try:
@@ -480,10 +486,67 @@ def fetch_column_type(table_name, column_name):
 
 
 def get_model_from_table_name(table_name):
+    # Supprimer le préfixe 'panel_' si présent
+    if table_name.startswith('panel_'):
+        table_name = table_name[len('panel_'):]
+
+    # Convertir le nom de la table en nom de modèle (majuscule sur la première lettre)
+    model_name = ''.join(word.capitalize() for word in table_name.split('_'))
+
     for app_config in apps.get_app_configs():
-        for model in app_config.get_models():
-            if model._meta.db_table == table_name:
-                return model
+        try:
+            return app_config.get_model(model_name)
+        except LookupError:
+            continue
     return None
 
+
+@csrf_exempt
+def create_shortcut(request):
+    if request.method == 'POST':
+        try:
+            data = json.loads(request.body)
+            name = data.get('name')
+            action_type = data.get('action_type')
+            action_value = data.get('action_value')
+            target_table = data.get('target_table')
+            target_column = data.get('target_column')
+            target_line = data.get('target_line')
+
+            shortcut = Shortcut(
+                name=name,
+                action_type=action_type,
+                action_value=action_value,
+                target_table=target_table,
+                target_column=target_column,
+                target_line=target_line
+            )
+            shortcut.save()
+
+            return JsonResponse({'status': 'success', 'message': 'Shortcut created successfully'}, status=201)
+        except Exception as e:
+            return JsonResponse({'status': 'error', 'message': str(e)}, status=400)
+    else:
+        return JsonResponse({'status': 'error', 'message': 'Invalid request method'}, status=405)
+
+
+def get_rows(request):
+    table_name = request.GET.get('table_name')
+    column_name = request.GET.get('column_name')
+
+    if not table_name or not column_name:
+        return JsonResponse({'error': 'Missing table name or column name'}, status=400)
+
+    model = get_model_from_table_name(table_name)
+
+    if model:
+        try:
+            # Vérifier si la colonne existe dans le modèle
+            model._meta.get_field(column_name)
+        except FieldDoesNotExist:
+            return JsonResponse({'error': 'Invalid column name'}, status=400)
+
+        rows = model.objects.all().values_list(column_name, flat=True)
+        return JsonResponse({'rows': list(rows)}, safe=False)
+    return JsonResponse({'error': 'Invalid table name'}, status=400)
 

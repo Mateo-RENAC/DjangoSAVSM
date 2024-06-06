@@ -1,6 +1,7 @@
 from django.contrib import admin
-from .models import Product, Stock, Consumption, StockHistory, ConsoHistory, Order, Batch, Alert
+from .models import Product, Stock, Consumption, StockHistory, ConsoHistory, Order, Batch, Alert, Shortcut
 
+admin.site.register(Shortcut)
 class ProductAdmin(admin.ModelAdmin):
     list_display = ('name', 'reference', 'user_name', 'abbreviated_user_name', 'description', 'order_link')
     search_fields = ('name', 'reference', 'user_name')

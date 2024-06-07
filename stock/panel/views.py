@@ -1,5 +1,5 @@
 import json
-from rest_framework import viewsets
+from rest_framework import viewsets, filters
 from django.views.decorators.csrf import ensure_csrf_cookie
 from django.middleware.csrf import get_token
 from django.apps import apps
@@ -10,11 +10,10 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework.permissions import IsAuthenticated
 from django_filters.rest_framework import DjangoFilterBackend
-from django_filters import filters
 from rest_framework import status
 from rest_framework.pagination import PageNumberPagination
-from rest_framework.exceptions import APIException
 from django.db.models import Q
+from django.db import models
 from panel.serializers import *
 
 
@@ -103,6 +102,115 @@ class StandardResultsSetPagination(PageNumberPagination):
     max_page_size = 1000
 
 
+
+class ListRowsView(APIView):
+    permission_classes = [IsAuthenticated]
+    filter_backends = [DjangoFilterBackend, filters.OrderingFilter, filters.SearchFilter]
+    ordering_fields = '__all__'
+    search_fields = '__all__'
+    pagination_class = StandardResultsSetPagination
+
+    def get(self, request, table_name):
+        try:
+            normalized_table_name = normalize_table_name(table_name)
+            model = get_model_by_table_name(normalized_table_name)
+            if not model:
+                return Response({"error": "Table not found"}, status=404)
+
+            queryset = model.objects.all()
+
+            # Apply search
+            search = request.query_params.get('search')
+            if search:
+                queryset = self.apply_search_filters(queryset, search, model)
+
+            # Apply ordering
+            sort_by = request.query_params.get('ordering')
+            if sort_by:
+                queryset = queryset.order_by(sort_by)
+            else:
+                # Apply default ordering to avoid UnorderedObjectListWarning
+                default_ordering = model._meta.ordering if model._meta.ordering else ['id']
+                queryset = queryset.order_by(*default_ordering)
+
+            # Apply pagination
+            paginator = self.pagination_class()
+            paginated_queryset = paginator.paginate_queryset(queryset, request)
+
+            # Dynamic serialization
+            fields = [field.name for field in model._meta.fields]
+            DynamicSerializer = create_dynamic_serializer(model, fields)
+            serializer = DynamicSerializer(instance=paginated_queryset, many=True)
+
+            return paginator.get_paginated_response(serializer.data)
+        except Exception as e:
+            print(f"Error in ListRowsView: {e}")
+            return Response({"error": str(e)}, status=500)
+
+    def apply_search_filters(self, queryset, search, model):
+        lookup_operators = {
+            ':': 'icontains',
+            '!': 'icontains',
+            '=': 'exact',
+            '!=': 'exact',
+            '<': 'lt',
+            '<=': 'lte',
+            '>': 'gt',
+            '>=': 'gte'
+        }
+
+        def parse_condition(condition):
+            for operator in sorted(lookup_operators.keys(), key=len, reverse=True):
+                if operator in condition:
+                    columns_part, values_part = condition.split(operator, 1)
+                    columns = columns_part.split(',') if columns_part else [field.name for field in model._meta.fields]
+                    values = values_part.split(',') if values_part else []
+                    return columns, values, operator
+            return [], [condition], 'icontains'
+
+        conditions = search.split('&&')
+        queries = Q()
+
+        for condition in conditions:
+            logic_queries = Q()
+            sub_conditions = condition.split('||')
+
+            for sub_condition in sub_conditions:
+                columns, values, operator = parse_condition(sub_condition)
+
+                if not columns:
+                    columns = [field.name for field in model._meta.fields]
+
+                sub_queries = Q()
+                for column in columns:
+                    if not hasattr(model, column):
+                        continue
+                    field = model._meta.get_field(column)
+                    if isinstance(field, models.ForeignKey) and operator == 'icontains':
+                        continue
+
+                    for value in values:
+                        if not value:
+                            continue
+                        if operator in ['!', '!=']:
+                            sub_queries &= ~Q(**{f"{column}__{lookup_operators[operator]}": value})
+                        elif operator == '=' and ',' in value:
+                            sub_queries &= Q(**{f"{column}__in": value.split(',')})
+                        else:
+                            if operator in ['<', '<=', '>', '>=']:
+                                try:
+                                    value = float(value)
+                                except ValueError:
+                                    continue
+                            sub_queries &= Q(**{f"{column}__{lookup_operators[operator]}": value})
+
+                logic_queries |= sub_queries
+
+            queries &= logic_queries
+
+        return queryset.filter(queries)
+
+
 class ListTablesView(APIView):
     permission_classes = [IsAuthenticated]
 
@@ -127,45 +235,6 @@ class ListColumnsView(APIView):
             columns = [{'name': col.name, 'type': col.type_code} for col in description]
             return Response({"columns": columns})
         except Exception as e:
-            return Response({"error": str(e)}, status=500)
-
-
-class ListRowsView(APIView):
-    permission_classes = [IsAuthenticated]
-    filter_backends = [DjangoFilterBackend, filters.OrderingFilter]
-    ordering_fields = '__all__'
-    pagination_class = StandardResultsSetPagination
-
-    def get(self, request, table_name):
-        try:
-            normalized_table_name = normalize_table_name(table_name)
-            model = get_model_by_table_name(normalized_table_name)
-            if not model:
-                return Response({"error": "Table not found"}, status=404)
-
-            queryset = model.objects.all()
-
-            # Apply ordering
-            sort_by = request.query_params.get('ordering')
-            if sort_by:
-                queryset = queryset.order_by(sort_by)
-            else:
-                # Apply default ordering to avoid UnorderedObjectListWarning
-                default_ordering = model._meta.ordering if model._meta.ordering else ['id']
-                queryset = queryset.order_by(*default_ordering)
-
-            # Apply pagination
-            paginator = self.pagination_class()
-            paginated_queryset = paginator.paginate_queryset(queryset, request)
-
-            # Dynamic serialization
-            fields = [field.name for field in model._meta.fields]
-            DynamicSerializer = create_dynamic_serializer(model, fields)
-            serializer = DynamicSerializer(instance=paginated_queryset, many=True)
-
-            return paginator.get_paginated_response(serializer.data)
-        except Exception as e:
-            print(f"Error in ListRowsView: {e}")
             return Response({"error": str(e)}, status=500)
 
 

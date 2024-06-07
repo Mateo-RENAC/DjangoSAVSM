@@ -1,0 +1,89 @@
+/* app/styles/SliderPeriod.css
+ */
+
+.slider-wrapper {
+  width: 100%;
+  margin: 0 auto;
+  text-align: center;
+  position: relative;
+}
+
+.bar-wrapper {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  position: relative;
+}
+
+.custom-slider {
+  height: 10px;
+  background: linear-gradient(to right, #ff7e5f, #feb47b);
+  border-radius: 10px;
+  outline: none;
+  position: relative;
+  flex: 1;
+  margin: 0 0px;
+}
+
+.custom-thumb {
+  height: 40px;
+  width: 10px;
+  background-color: #ffffff;
+  border: 2.5px solid #ff7e5f;
+  border-radius: 5px;
+  cursor: grab;
+  position: absolute;
+  top: -10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: inherit;
+  white-space: nowrap;
+  z-index: 2;
+}
+
+.custom-thumb:active {
+  cursor: grabbing;
+}
+
+.custom-track {
+  background: transparent;
+}
+
+.date-range {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 10px;
+}
+
+.bar-button {
+  height: 20px;
+  width: 10px;
+  background-color: #ff7e5f;
+  border: none;
+  cursor: pointer;
+  position: relative;
+  z-index: 3;
+}
+
+.calendar-wrapper {
+  position: absolute;
+  bottom: 50px;
+  z-index: 4;
+  background: white;
+}
+
+.one-calendar {
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+.two-calendars.min-calendar {
+  left: calc(50% - 150px); /* Adjust this value based on calendar width */
+  transform: translateX(-50%);
+}
+
+.two-calendars.max-calendar {
+  left: calc(50% + 150px); /* Adjust this value based on calendar width */
+  transform: translateX(-50%);
+}

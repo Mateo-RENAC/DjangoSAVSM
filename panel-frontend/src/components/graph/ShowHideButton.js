@@ -12,8 +12,7 @@ const ShowHideButton = ({ onClick, visible }) => {
         backgroundColor: 'transparent',
         border: 'none',
         cursor: 'pointer',
-        fontSize: '16px',
-        color: '#fff'
+        fontSize: '16px'
       }}
     >
       {visible ? <FaEyeSlash /> : <FaEye />}

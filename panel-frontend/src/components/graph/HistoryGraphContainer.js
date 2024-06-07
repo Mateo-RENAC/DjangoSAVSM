@@ -1,17 +1,18 @@
 import React, { useState, useEffect, useRef } from 'react';
 import GraphWrapper from './GraphWrapper';
 import ShowHideButton from './ShowHideButton';
+import SliderInterval from '../slider/Slider';
+import SliderPeriod from '../slider/SliderPeriod';
 import { ResizableBox } from 'react-resizable';
 import { FaSearchPlus, FaSearchMinus } from 'react-icons/fa';
 import 'react-resizable/css/styles.css';
-import DateRangeSlider from '../DateRangeSlider';
 
 const HistoryGraphContainer = ({ graph, isVisible, onToggleVisibility, gap }) => {
   const [zoomLevel, setZoomLevel] = useState(1);
-  const [minSize, setMinSize] = useState({ minWidth: 150, minHeight: 150 });
+  const [minSize, setMinSize] = useState({ minWidth: 150, minHeight: 250 }); // Increased minimum height to ensure both sliders visibility
+  const [interval, setInterval] = useState(60 * 60 * 1000); // Default interval: 1 hour in milliseconds
   const [minDate, setMinDate] = useState(new Date('2020-01-01'));
   const [maxDate, setMaxDate] = useState(new Date());
-  const [interval, setInterval] = useState('day');
   const graphRef = useRef();
 
   useEffect(() => {
@@ -36,7 +37,7 @@ const HistoryGraphContainer = ({ graph, isVisible, onToggleVisibility, gap }) =>
       const xAxisLabels = Array.from(graphRef.current.querySelectorAll('.chartjs-x-axis text'));
       const maxLabelWidth = xAxisLabels.reduce((maxWidth, label) => Math.max(maxWidth, label.offsetWidth), 0);
 
-      const newMinHeight = 150 + legendHeight + titleHeight;
+      const newMinHeight = 250 + legendHeight + titleHeight; // Increased minimum height
       const newMinWidth = 150 + Math.max(labelWidth + labelPadding, maxLabelWidth);
       setMinSize({ minWidth: newMinWidth, minHeight: newMinHeight });
     }
@@ -48,55 +49,116 @@ const HistoryGraphContainer = ({ graph, isVisible, onToggleVisibility, gap }) =>
     }
   };
 
+  const handleIntervalChange = (newInterval) => {
+    setInterval(fractionToInterval(newInterval / 100));
+    // Apply your data filtering logic here based on the new interval
+  };
+
   const handleDateChange = (start, end) => {
     setMinDate(start);
     setMaxDate(end);
     // Apply your data filtering logic here based on start and end dates
   };
 
+  const intervalToFraction = (value) => {
+    if (value < 24 * 60 * 60 * 1000) { // Hours range
+      return (value - 1) / (23 * 60 * 60 * 1000) * (2 / 6);
+    } else if (value < 31 * 24 * 60 * 60 * 1000) { // Days range
+      return 2 / 6 + (value - 24 * 60 * 60 * 1000) / (30 * 24 * 60 * 60 * 1000) * (3 / 6);
+    } else { // Months range
+      return 5 / 6 + (value - 31 * 24 * 60 * 60 * 1000) / (11 * 30 * 24 * 60 * 60 * 1000) * (1 / 6);
+    }
+  };
+
+  const fractionToInterval = (fraction) => {
+    if (fraction < 2 / 6) { // Hours range
+      return 1 + fraction / (2 / 6) * (23 * 60 * 60 * 1000);
+    } else if (fraction < 5 / 6) { // Days range
+      return 24 * 60 * 60 * 1000 + (fraction - 2 / 6) / (3 / 6) * (30 * 24 * 60 * 60 * 1000);
+    } else { // Months range
+      return 31 * 24 * 60 * 60 * 1000 + (fraction - 5 / 6) / (1 / 6) * (11 * 30 * 24 * 60 * 60 * 1000);
+    }
+  };
+
+  const formatIntervalLabel = (value) => {
+    if (value < 24 * 60 * 60 * 1000) {
+      return `${Math.floor(value / (60 * 60 * 1000))}h`;
+    } else if (value < 31 * 24 * 60 * 60 * 1000) {
+      return `${Math.floor(value / (24 * 60 * 60 * 1000))}d`;
+    } else {
+      return `${Math.floor(value / (30 * 24 * 60 * 60 * 1000))}m`;
+    }
+  };
+
+  const getIntervalStep = (value) => {
+    if (value < 24 * 60 * 60 * 1000) {
+      return 60 * 60 * 1000; // 1 hour step
+    } else if (value < 31 * 24 * 60 * 60 * 1000) {
+      return 24 * 60 * 60 * 1000; // 1 day step
+    } else {
+      return 30 * 24 * 60 * 60 * 1000; // 1 month step
+    }
+  };
+
   return (
     <div style={{ display: isVisible ? 'block' : 'none', margin: gap }}>
       <ResizableBox
         width={300}
-        height={300}
-        minConstraints={[minSize.minWidth, minSize.minHeight]}
+        height={450} // Adjusted height to provide space for both sliders
+        minConstraints={[minSize.minWidth, minSize.minHeight + 150]} // Extra space for sliders
         maxConstraints={[600, 600]}
         resizeHandles={['se']}
       >
-        <div ref={graphRef} style={{ width: '100%', height: '100%', position: 'relative', border: '1px solid #ccc', overflow: 'hidden' }}>
-          <div style={{ width: '100%', height: '100%', zoom: zoomLevel }} onWheel={handleWheel}>
-            <GraphWrapper {...graph} />
+        <div style={{ width: '100%', height: '100%', position: 'relative', border: '1px solid #ccc', display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
+          <div ref={graphRef} style={{ flex: '1 1 auto', position: 'relative', borderBottom: '1px solid #ccc', minHeight: '0' }}>
+            <div style={{ width: '100%', height: '100%', zoom: zoomLevel }} onWheel={handleWheel}>
+              <GraphWrapper {...graph} />
+            </div>
+            <ShowHideButton onClick={onToggleVisibility} visible={isVisible} />
+            <div className="zoom-buttons" style={{ position: 'absolute', top: '5px', left: '5px', display: 'flex', gap: '5px' }}>
+              <button
+                style={{
+                  backgroundColor: 'transparent',
+                  border: 'none',
+                  cursor: 'pointer',
+                  fontSize: '16px'
+                }}
+                onClick={() => setZoomLevel(prevZoom => Math.min(2, prevZoom + 0.1))}
+              >
+                <FaSearchPlus />
+              </button>
+              <button
+                style={{
+                  backgroundColor: 'transparent',
+                  border: 'none',
+                  cursor: 'pointer',
+                  fontSize: '16px'
+                }}
+                onClick={() => setZoomLevel(prevZoom => Math.max(0.5, prevZoom - 0.1))}
+              >
+                <FaSearchMinus />
+              </button>
+            </div>
           </div>
-          <ShowHideButton onClick={onToggleVisibility} visible={isVisible} />
-          <div className="zoom-buttons" style={{ position: 'absolute', top: '5px', left: '5px', display: 'flex', gap: '5px' }}>
-            <button
-              style={{
-                backgroundColor: 'transparent',
-                border: 'none',
-                cursor: 'pointer',
-                fontSize: '16px',
-                color: '#fff'
-              }}
-              onClick={() => setZoomLevel(prevZoom => Math.min(2, prevZoom + 0.1))}
-            >
-              <FaSearchPlus />
-            </button>
-            <button
-              style={{
-                backgroundColor: 'transparent',
-                border: 'none',
-                cursor: 'pointer',
-                fontSize: '16px',
-                color: '#fff'
-              }}
-              onClick={() => setZoomLevel(prevZoom => Math.max(0.5, prevZoom - 0.1))}
-            >
-              <FaSearchMinus />
-            </button>
+          <div style={{ flex: '0 0 50px', padding: '5px', boxSizing: 'border-box' }}>
+            <SliderInterval
+              value={intervalToFraction(interval) * 100} // Assuming the slider value is between 0 and 100
+              min={0}
+              max={100}
+              step={1}
+              formatLabel={formatIntervalLabel}
+              onChange={handleIntervalChange}
+            />
+            <div className="slider-value">{formatIntervalLabel(interval)}</div>
           </div>
-          <div className="date-range-picker" style={{ position: 'absolute', bottom: '10px', left: '10px', right: '10px', display: 'flex', flexDirection: 'column', gap: '10px' }}>
-            <DateRangeSlider minDate={minDate} maxDate={maxDate} onDateChange={handleDateChange} />
-          </div>*/
+          <div style={{ flex: '0 0 50px', padding: '5px', boxSizing: 'border-box' }}>
+            <SliderPeriod
+              minDate={minDate}
+              maxDate={maxDate}
+              increment={24 * 60 * 60 * 1000} // 1 day
+              onDateChange={handleDateChange}
+            />
+          </div>
         </div>
       </ResizableBox>
     </div>

@@ -1,8 +1,8 @@
 import React from 'react';
 import Slider from 'react-slider';
-import './SliderComponent.css';
+import '../../app/styles/Slider.css';
 
-const SliderComponent = ({ value, onChange }) => {
+const SliderComponent = ({ value, onChange, min, max, step, formatLabel }) => {
   return (
     <div className="slider-wrapper">
       <Slider
@@ -11,10 +11,14 @@ const SliderComponent = ({ value, onChange }) => {
         trackClassName="custom-track"
         value={value}
         onChange={onChange}
-        min={0}
-        max={100}
+        min={min}
+        max={max}
+        step={step}
+        renderThumb={(props, state) => (
+            <div {...props} className="custom-thumb">
+            </div>
+        )}
       />
-      <div className="slider-value">{value}</div>
     </div>
   );
 };

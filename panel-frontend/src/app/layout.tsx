@@ -1,20 +1,12 @@
-// app/layout.tsx
-import './styles/globals.css'; // Import global styles
-import { metadata } from './metadata.tsx'; // Import metadata
-import Navbar from "@/components/Navbar";
+import React from 'react';
+import './styles/globals.css';
+import Navbar from "@/components/Navbar/Navbar";
 
 export default function RootLayout({ children, isDarkMode, toggleTheme }) {
   return (
-    <html lang="en">
-      <head>
-        <title>{metadata.title}</title>
-        <meta name="description" content={metadata.description} />
-        {/* Add any other head tags here */}
-      </head>
-      <body>
-        <Navbar isDarkMode={isDarkMode} toggleTheme={toggleTheme} />
-        {children}
-      </body>
-    </html>
+    <div className={isDarkMode ? 'dark-mode' : 'light-mode'}>
+      <Navbar isDarkMode={isDarkMode} toggleTheme={toggleTheme} />
+      <main>{children}</main>
+    </div>
   );
 }

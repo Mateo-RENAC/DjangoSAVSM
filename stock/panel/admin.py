@@ -1,12 +1,41 @@
+# panel/admin
 from django.contrib import admin
-from .models import Product, Stock, Consumption, StockHistory, ConsoHistory, Order, Batch, Alert, Shortcut
+from django import forms
+from .models import *
 
-admin.site.register(Shortcut)
+
+class UserTokenForm(forms.ModelForm):
+    generate_tokens = forms.BooleanField(label='Generate new tokens', required=False)
+
+    class Meta:
+        model = UserToken
+        fields = ['user', 'access_token', 'refresh_token']
+
+    def save(self, commit=True):
+        instance = super(UserTokenForm, self).save(commit=False)
+        if self.cleaned_data.get('generate_tokens'):
+            instance.generate_tokens()
+        if commit:
+            instance.save()
+        return instance
+
+
+class UserTokenAdmin(admin.ModelAdmin):
+    form = UserTokenForm
+    list_display = ('user', 'access_token', 'refresh_token', 'created_at', 'updated_at')
+    search_fields = ('user__username',)
+
+
+admin.site.register(UserToken, UserTokenAdmin)
+
+
 class ProductAdmin(admin.ModelAdmin):
     list_display = ('name', 'reference', 'user_name', 'abbreviated_user_name', 'description', 'order_link')
     search_fields = ('name', 'reference', 'user_name')
 
+
 admin.site.register(Product, ProductAdmin)
+
 
 class StockAdmin(admin.ModelAdmin):
     list_display = ('product_name', 'count', 'pending_count')
@@ -17,7 +46,9 @@ class StockAdmin(admin.ModelAdmin):
 
     product_name.short_description = 'Product'
 
+
 admin.site.register(Stock, StockAdmin)
+
 
 class ConsumptionAdmin(admin.ModelAdmin):
     list_display = ('product_name', 'count')
@@ -28,7 +59,9 @@ class ConsumptionAdmin(admin.ModelAdmin):
 
     product_name.short_description = 'Product'
 
+
 admin.site.register(Consumption, ConsumptionAdmin)
+
 
 class StockHistoryAdmin(admin.ModelAdmin):
     list_display = ('product_name', 'date', 'count')
@@ -40,7 +73,9 @@ class StockHistoryAdmin(admin.ModelAdmin):
 
     product_name.short_description = 'Product'
 
+
 admin.site.register(StockHistory, StockHistoryAdmin)
+
 
 class ConsoHistoryAdmin(admin.ModelAdmin):
     list_display = ('product_name', 'date', 'count')
@@ -52,7 +87,9 @@ class ConsoHistoryAdmin(admin.ModelAdmin):
 
     product_name.short_description = 'Product'
 
+
 admin.site.register(ConsoHistory, ConsoHistoryAdmin)
+
 
 class OrderAdmin(admin.ModelAdmin):
     list_display = ('product_name', 'quantity', 'date', 'batch_name')
@@ -69,7 +106,9 @@ class OrderAdmin(admin.ModelAdmin):
 
     batch_name.short_description = 'Batch'
 
+
 admin.site.register(Order, OrderAdmin)
+
 
 class BatchAdmin(admin.ModelAdmin):
     list_display = ('name', 'date', 'orders_list')
@@ -80,7 +119,9 @@ class BatchAdmin(admin.ModelAdmin):
 
     orders_list.short_description = 'Orders'
 
+
 admin.site.register(Batch, BatchAdmin)
+
 
 @admin.register(Alert)
 class AlertAdmin(admin.ModelAdmin):
@@ -93,3 +134,6 @@ class AlertAdmin(admin.ModelAdmin):
         form.base_fields['threshold_low'].required = False
         form.base_fields['threshold_high'].required = False
         return form
+
+
+admin.site.register(Shortcut)

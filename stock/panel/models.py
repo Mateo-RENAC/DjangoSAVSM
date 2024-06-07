@@ -1,5 +1,26 @@
+# panel/models
 from django.db import models
+from django.contrib.auth.models import User
 from django.utils import timezone
+from rest_framework_simplejwt.tokens import RefreshToken
+
+
+class UserToken(models.Model):
+    user = models.OneToOneField(User, on_delete=models.CASCADE)
+    access_token = models.TextField(blank=True, null=True)
+    refresh_token = models.TextField(blank=True, null=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    def __str__(self):
+        return self.user.username
+
+    def generate_tokens(self):
+        refresh = RefreshToken.for_user(self.user)
+        self.access_token = str(refresh.access_token)
+        self.refresh_token = str(refresh)
+        self.save()
+
 
 class Product(models.Model):
     name = models.CharField(max_length=50, unique=True)
@@ -9,10 +30,12 @@ class Product(models.Model):
     description = models.TextField(blank=True, null=True)
     localization = models.TextField(blank=True, null=True)
     order_link = models.URLField(blank=True, null=True)
-    previous_order = models.ForeignKey('Order', on_delete=models.SET_NULL, null=True, blank=True, related_name='previous_orders')
+    previous_order = models.ForeignKey('Order', on_delete=models.SET_NULL, null=True, blank=True,
+                                       related_name='previous_orders')
 
     def __str__(self):
         return self.name
+
 
 class Stock(models.Model):
     product = models.OneToOneField(Product, on_delete=models.CASCADE)
@@ -22,12 +45,14 @@ class Stock(models.Model):
     def __str__(self):
         return f"{self.product.name} - {self.count}"
 
+
 class Consumption(models.Model):
     product = models.OneToOneField(Product, on_delete=models.CASCADE)
     count = models.IntegerField(default=0)
 
     def __str__(self):
         return f"{self.product.name} - {self.count}"
+
 
 class StockHistory(models.Model):
     product = models.ForeignKey(Product, on_delete=models.CASCADE)
@@ -37,6 +62,7 @@ class StockHistory(models.Model):
     def __str__(self):
         return f"{self.product.name} - {self.date} - {self.count}"
 
+
 class ConsoHistory(models.Model):
     product = models.ForeignKey(Product, on_delete=models.CASCADE)
     date = models.DateTimeField(default=timezone.now)
@@ -44,6 +70,7 @@ class ConsoHistory(models.Model):
 
     def __str__(self):
         return f"{self.product.name} - {self.date} - {self.count}"
+
 
 class Order(models.Model):
     product = models.ForeignKey(Product, on_delete=models.CASCADE)
@@ -54,6 +81,7 @@ class Order(models.Model):
     def __str__(self):
         return f"Order of {self.quantity} {self.product.name} on {self.date}"
 
+
 class Batch(models.Model):
     name = models.CharField(max_length=50, unique=True)
     date = models.DateTimeField(default=timezone.now)
@@ -61,6 +89,7 @@ class Batch(models.Model):
 
     def __str__(self):
         return self.name
+
 
 class Alert(models.Model):
     product = models.ForeignKey(Product, on_delete=models.CASCADE)
@@ -73,7 +102,6 @@ class Alert(models.Model):
 
 
 class Shortcut(models.Model):
-
     ACTIONS_TYPES = [
         ('increase', 'Increase'),
         ('decrease', 'Decrease'),

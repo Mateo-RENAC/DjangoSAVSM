@@ -1,3 +1,4 @@
+# panel/apps
 from django.apps import AppConfig
 
 class PanelConfig(AppConfig):

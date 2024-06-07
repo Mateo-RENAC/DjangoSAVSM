@@ -1,15 +1,15 @@
 // pages/ListBoard.tsx
 import React, { useState } from 'react';
 import Button from '@mui/material/Button';
-import List from '@/components/List';
+import DataList from '@/components/data/DataList';
 
 const ListBoard = () => {
   const [selectedModel, setSelectedModel] = useState(null);
 
   const models = [
-    { name: 'Products', endpoint: 'http://localhost:8000/panel/api/products/', columns: [{ field: 'name', label: 'Name' }, { field: 'description', label: 'Description' }] },
-    { name: 'Stock', endpoint: 'http://localhost:8000/panel/api/stock/', columns: [{ field: 'product', label: 'Product' }, { field: 'count', label: 'Count' }, { field: 'pending_count', label: 'Pending count' }] },
-    { name: 'Orders', endpoint: 'http://localhost:8000/panel/api/orders/', columns: [{ field: 'product', label: 'Product Name' }, { field: 'quantity', label: 'Quantity' }] },
+    { name: 'Products', endpoint: 'product' },
+    { name: 'Stock', endpoint: 'stock' },
+    { name: 'Order', endpoint: 'order' }
     // Add more models as necessary
   ];
 
@@ -33,7 +33,7 @@ const ListBoard = () => {
       {selectedModel && (
         <div style={{ marginTop: '20px' }}>
           <h1>{selectedModel.name} List</h1>
-          <List dataUrl={selectedModel.endpoint} columns={selectedModel.columns} />
+          <DataList dataUrl={selectedModel.endpoint} columns={selectedModel.columns} />
         </div>
       )}
     </div>

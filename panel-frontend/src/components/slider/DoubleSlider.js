@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import Slider from 'react-slider';
-import './SliderPeriod.css';
+import '../../app/styles/SliderPeriod.css';
 import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
 

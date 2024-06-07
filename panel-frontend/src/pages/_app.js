@@ -1,27 +1,38 @@
 // pages/_app.js
-"use client"; // Add this directive
-
-import { useEffect, useState } from "react";
-import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
-import Breadcrumb from "../components/Breadcrumb";
-import GraphBoard from "./graphBoard";
-import About from "./about";
-import Contact from "./contact";
+import { useEffect, useState } from 'react';
+import { getSession, signOut } from 'next-auth/react';
+import customFetch from '../lib/fetch';
+import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
+import Breadcrumb from '../components/Breadcrumb';
+import GraphBoard from './GraphBoard';
 import Layout from '../app/layout';
-import Home from "./index";
-import "../app/styles/globals.css";
-import ListBoard from "./ListBoard";
-import PageTest from "./PageTest"; // Import global styles
+import Home from './index';
+import '../app/styles/globals.css';
+import ListBoard from './ListBoard';
+import PageTest from './PageTest';
+import { ThemeProvider } from '@mui/material/styles';
+import { lightTheme, darkTheme } from '../app/theme';
+import Login from './Login';
+import Logout from './Logout';
+import { getCsrfToken, checkSession, refreshToken } from '../lib/auth';
+import axiosInstance from '../lib/axiosConfig';
 
-const isChromium = () => {
-  const userAgent = navigator.userAgent;
-  return /Chrome|Chromium/.test(userAgent) && !/Edge|Edg|OPR/.test(userAgent);
-};
+const MyApp = ({ pageProps }) => {
+    useEffect(() => {
+    const initializeAuth = async () => {
+      await getCsrfToken();
+      await checkSession();
 
-function MyApp({ Component, pageProps }) {
+      setInterval(async () => {
+        await refreshToken();
+      }, 4 * 60 * 1000); // Refresh token every 4 minutes
+    };
+
+    initializeAuth();
+  }, []);
+
   const [isClient, setIsClient] = useState(false);
   const [isDarkMode, setIsDarkMode] = useState(false);
-  const [isChromeDarkMode, setIsChromeDarkMode] = useState(false);
 
   useEffect(() => {
     setIsClient(true);
@@ -30,12 +41,6 @@ function MyApp({ Component, pageProps }) {
     const prefersDarkScheme = window.matchMedia("(prefers-color-scheme: dark)");
     const initialMode = savedTheme ? savedTheme === 'dark' : prefersDarkScheme.matches;
     setIsDarkMode(initialMode);
-
-    if (isChromium()) {
-      const darkModeMediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
-      setIsChromeDarkMode(darkModeMediaQuery.matches);
-      darkModeMediaQuery.addEventListener('change', (e) => setIsChromeDarkMode(e.matches));
-    }
 
     applyTheme(initialMode);
 
@@ -56,15 +61,9 @@ function MyApp({ Component, pageProps }) {
     if (darkMode) {
       document.body.classList.add('dark-mode');
       document.body.classList.remove('light-mode');
-      if (isChromium() && isChromeDarkMode) {
-        document.body.classList.remove('invert-colors');
-      }
     } else {
       document.body.classList.add('light-mode');
       document.body.classList.remove('dark-mode');
-      if (isChromium() && isChromeDarkMode) {
-        document.body.classList.add('invert-colors');
-      }
     }
   };
 
@@ -80,22 +79,24 @@ function MyApp({ Component, pageProps }) {
   }
 
   return (
-    <Router>
-      <Layout isDarkMode={isDarkMode} toggleTheme={toggleTheme}>
-        <div className="app">
-          <Breadcrumb separator=">" />
-          <Routes>
-            <Route path="/" element={<Home />} />
-            <Route path="/graphboard" element={<GraphBoard />} />
-            <Route path="/ListBoard" element={<ListBoard />} />
-            <Route path="/about" element={<About />} />
-            <Route path="/contact" element={<Contact />} />
-            <Route path="/PageTest" element={<PageTest />} />
-          </Routes>
-        </div>
-      </Layout>
-    </Router>
+    <ThemeProvider theme={isDarkMode ? darkTheme : lightTheme}>
+      <Router>
+        <Layout isDarkMode={isDarkMode} toggleTheme={toggleTheme}>
+          <div className="app">
+            <Breadcrumb separator=">" />
+            <Routes>
+              <Route path="/login" element={<Login />} />
+              <Route path="/Logout" element={<Logout />} />
+              <Route path="/" element={<Home />} />
+              <Route path="/GraphBoard" element={<GraphBoard />} />
+              <Route path="/ListBoard" element={<ListBoard />} />
+              <Route path="/PageTest" element={<PageTest />} />
+            </Routes>
+          </div>
+        </Layout>
+      </Router>
+    </ThemeProvider>
   );
-}
+};
 
 export default MyApp;

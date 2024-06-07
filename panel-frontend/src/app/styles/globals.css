@@ -1,10 +1,27 @@
-/* app/styles/global.css */
+/* app/styles/globals.css */
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
-html, body, #__next {
-  height: 100%;
+:root {
+  --background-color: #ffffff;
+  --foreground-color: #000000;
+}
+
+.dark-mode {
+  --background-color: #000000;
+  --foreground-color: #ffffff;
+}
+
+.light-mode {
+  --background-color: #f0f0f0;
+  --foreground-color: #000000;
+}
+
+body {
+  font-family: Arial, sans-serif;
+  background-color: var(--background-color);
+  color: var(--foreground-color);
   margin: 0;
   padding: 0;
 }
@@ -18,11 +35,10 @@ html, body, #__next {
 
 .header {
   padding: 1rem;
-  background-color: #f0f0f0 !important;
-  color: inherit !important;
+  background-color: var(--background-color);
+  color: var(--foreground-color);
 }
 
-/* GRAPH */
 .dashboard-container {
   display: flex;
   flex-direction: column;
@@ -32,22 +48,22 @@ html, body, #__next {
 .graphs-grid {
   display: flex;
   flex-wrap: wrap;
-  gap: 0; /* Default gap to 0 */
+  gap: 0;
 }
 
 .graph-container {
   display: inline-flex;
   position: relative;
-  border: 1px solid #ccc !important;
-  background-color: transparent !important;
+  border: 1px solid var(--foreground-color);
+  background-color: transparent;
   overflow: hidden;
-  flex-grow: 0; /* Prevent graphs from growing to fill available space */
-  flex-shrink: 0; /* Prevent graphs from shrinking below their content size */
+  flex-grow: 0;
+  flex-shrink: 0;
 }
 
 .graph-container .react-resizable {
   position: relative;
-  border: none !important;
+  border: none;
 }
 
 .graph-container .react-resizable-handle {
@@ -56,8 +72,7 @@ html, body, #__next {
   height: 20px;
   bottom: 0;
   right: 0;
-  background: transparent !important;
-  color: #fff !important;
+  background: transparent;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -68,11 +83,11 @@ html, body, #__next {
   position: absolute;
   top: 5px;
   right: 5px;
-  background-color: transparent !important;
-  border: none !important;
+  background-color: transparent;
+  border: none;
   cursor: pointer;
-  font-size: 16px;
-  color: #fff !important;
+  font-size: inherit;
+  color: var(--foreground-color);
 }
 
 .zoom-buttons {
@@ -90,20 +105,18 @@ html, body, #__next {
 }
 
 .taskbar button {
-  background-color: #444 !important;
-  color: #fff !important;
-  border: none !important;
+  background-color: var(--foreground-color);
+  color: var(--background-color);
+  border: none;
   border-radius: 3px;
   padding: 5px 10px;
   cursor: pointer;
-  margin-right: 5px;
 }
 
-/* Breadcrumb */
 .breadcrumb {
   display: flex;
   align-items: center;
-  font-size: 14px;
+  font-size: inherit;
   margin: 10px 0;
 }
 
@@ -113,139 +126,52 @@ html, body, #__next {
 }
 
 .breadcrumb-link {
-  color: #007bff !important;
-  text-decoration: none !important;
-}
-
-.breadcrumb-link:hover {
-  text-decoration: underline !important;
-}
-
-.breadcrumb-label {
-  color: #6c757d !important;
+  color: #007bff;
+  text-decoration: none;
 }
 
 .breadcrumb-separator {
   margin: 0 8px;
-  color: #6c757d !important;
+  color: #6c757d;
 }
 
-/* Dark and Light Mode */
-
-/* Default (Light mode) */
-body.light-mode {
-  background-color: white !important;
-  color: black !important;
-}
-
-body.light-mode .zoom-buttons button {
-  color: black !important;
-}
-
-body.light-mode .header {
-  background-color: #f0f0f0 !important;
-}
-
-body.light-mode .graph-container {
-  border-color: #ccc !important;
-}
-
-body.light-mode .taskbar button {
-  background-color: #444 !important;
-}
-
-body.light-mode .breadcrumb-link {
-  color: #007bff !important;
-}
-
-body.light-mode .breadcrumb-label,
-body.light-mode .breadcrumb-separator {
-  color: #6c757d !important;
-}
-
-/* Dark mode */
-body.dark-mode {
-  background-color: black !important;
-  color: white !important;
-}
-
-body.dark-mode .zoom-buttons button {
-  color: white !important;
-}
-
-body.dark-mode .header {
-  background-color: #333 !important;
-}
-
-body.dark-mode .graph-container {
-  border-color: #555 !important;
-}
-
-body.dark-mode .taskbar button {
-  background-color: #666 !important;
-}
-
-body.dark-mode .breadcrumb-link {
-  color: #80d8ff !important;
-}
-
-<<<<<<< HEAD
-
-
-body {
-  font-family: Arial, sans-serif;
-  margin: 0;
-  padding: 0;
-  background-color: #f4f4f4;
-}
-
-.PageTest {
-  text-align: center;
-  padding: 20px;
-=======
-/* src/App.css */
-.App {
-  text-align: center;
-}
-
-/* Styles for select elements */
-select {
-  background-color: white;
-  color: black;
-  border: 1px solid #ccc;
+select, input, textarea {
+  background-color: var(--background-color);
+  color: var(--foreground-color);
+  border: 1px solid var(--foreground-color);
   padding: 10px;
-  font-size: 16px;
+  font-size: inherit;
   border-radius: 5px;
   margin: 10px 0;
 }
 
-/* Styles for options inside select elements */
 select option {
-  background-color: white;
-  color: black;
+  background-color: var(--background-color);
+  color: var(--foreground-color);
   padding: 10px;
-  font-size: 16px;
+  font-size: inherit;
 }
 
-/* Hover effect for select element */
-select:hover {
+select:hover, input:hover, textarea:hover {
   border-color: #888;
 }
 
-/* Dark mode styles for select elements */
-body.dark-mode select {
-  background-color: #333;
-  color: white;
-  border: 1px solid #555;
+table {
+  background-color: var(--background-color);
+  color: var(--foreground-color);
 }
 
-body.dark-mode select option {
-  background-color: #333;
-  color: white;
+table thead th {
+  background-color: var(--background-color);
+  color: var(--foreground-color);
 }
 
-/* Hover effect for select element in dark mode */
-body.dark-mode select:hover {
-  border-color: #888;
->>>>>>> 4e7b4fa9dd66a085b8746b6a00eb678d4e8bdd39
+table tbody tr {
+  background-color: var(--background-color);
+  color: var(--foreground-color);
+}
+
+table tbody td {
+  background-color: var(--background-color);
+  color: var(--foreground-color);
 }

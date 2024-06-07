@@ -1,6 +1,7 @@
+// @/components/slider/SliderPeriod.js
 import React, { useState, useEffect, useRef } from 'react';
 import Slider from 'react-slider';
-import './SliderPeriod.css';
+import '../../app/styles/SliderPeriod.css';
 import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
 
@@ -9,7 +10,8 @@ const dateToValue = (date, startDate, increment) => {
 };
 
 const valueToDate = (value, startDate, increment) => {
-  return new Date(startDate.getTime() + value * increment);
+  const result = new Date(startDate.getTime() + value * increment);
+  return result;
 };
 
 const SliderPeriod = ({ minDate, maxDate, increment, dateFormat = 'fr-FR' }) => {
@@ -28,10 +30,8 @@ const SliderPeriod = ({ minDate, maxDate, increment, dateFormat = 'fr-FR' }) => 
   useEffect(() => {
     const handleClickOutside = (event) => {
       if (
-        minDateRef.current &&
-        !minDateRef.current.contains(event.target) &&
-        maxDateRef.current &&
-        !maxDateRef.current.contains(event.target)
+        (minDateRef.current && !minDateRef.current.contains(event.target)) &&
+        (maxDateRef.current && !maxDateRef.current.contains(event.target))
       ) {
         setIsMinCalendarOpen(false);
         setIsMaxCalendarOpen(false);
@@ -45,8 +45,8 @@ const SliderPeriod = ({ minDate, maxDate, increment, dateFormat = 'fr-FR' }) => 
   }, []);
 
   useEffect(() => {
-    const thumbWidth = 80;
-    const borderWidth = 2.5;
+    const thumbWidth = 50;
+    const borderWidth = 0;
     const totalThumbWidth = thumbWidth + 2 * borderWidth;
 
     const sliderWidth = document.querySelector('.custom-slider').offsetWidth;
@@ -86,7 +86,6 @@ const SliderPeriod = ({ minDate, maxDate, increment, dateFormat = 'fr-FR' }) => 
           minDistance={minDistance}
           renderThumb={(props, state) => (
             <div {...props} className="custom-thumb">
-              {valueToDate(state.valueNow, minDate, increment).toLocaleDateString(dateFormat)}
             </div>
           )}
         />
@@ -103,6 +102,10 @@ const SliderPeriod = ({ minDate, maxDate, increment, dateFormat = 'fr-FR' }) => 
             selected={valueToDate(values[0], minDate, increment)}
             onChange={handleMinDateChange}
             inline
+            showMonthDropdown
+            showYearDropdown
+            dropdownMode="select"
+            useWeekdaysShort
           />
         </div>
       )}
@@ -113,6 +116,10 @@ const SliderPeriod = ({ minDate, maxDate, increment, dateFormat = 'fr-FR' }) => 
             selected={valueToDate(values[1], minDate, increment)}
             onChange={handleMaxDateChange}
             inline
+            showMonthDropdown
+            showYearDropdown
+            dropdownMode="select"
+            useWeekdaysShort
           />
         </div>
       )}

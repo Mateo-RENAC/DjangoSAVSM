@@ -1,33 +1,23 @@
-from django.urls import path
-from .views import (
-    dashboard, product_list, product_add, product_edit, product_delete, product_detail,
-    bar_graph, historical_graph, generate_pdf_stock, generate_pdf_conso, alert_table, product_search, graph_page,
-    instantaneous_data, historical_data,
-    ProductViewSet, StockViewSet, StockHistoryViewSet, ConsumptionViewSet, ConsoHistoryViewSet, AlertViewSet,
-    BatchViewSet, OrderViewSet, list_stock_and_product_names, get_table_list, get_column_list, create_shortcut, get_rows
-
-)
-from .models import StockHistory, ConsoHistory
-from django.urls import path, include
+from django.urls import path, include, re_path
 from rest_framework.routers import DefaultRouter
-from .views import ProductViewSet, StockViewSet,get_column_type
-from django.urls import re_path
 from drf_yasg.views import get_schema_view
 from drf_yasg import openapi
 from rest_framework import permissions
+from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
+from .views import *
 
-## API
+# API Router
 router = DefaultRouter()
-router.register(r'products', ProductViewSet) # ONLY PRODUCTS
-router.register(r'stock', StockViewSet) # ONLY COUNTS
+router.register(r'product', ProductViewSet)
+router.register(r'stock', StockViewSet)
 router.register(r'stock-history', StockHistoryViewSet)
 router.register(r'consumption', ConsumptionViewSet)
 router.register(r'consumption-history', ConsoHistoryViewSet)
-router.register(r'alerts', AlertViewSet)
-router.register(r'batches', BatchViewSet)
-router.register(r'orders', OrderViewSet)
+router.register(r'alert', AlertViewSet)
+router.register(r'batch', BatchViewSet)
+router.register(r'order', OrderViewSet)
 
-## Swagger
+# Swagger
 schema_view = get_schema_view(
     openapi.Info(
         title="API Documentation",
@@ -38,36 +28,23 @@ schema_view = get_schema_view(
         license=openapi.License(name="BSD License"),
     ),
     public=True,
-    permission_classes=(permissions.AllowAny,),
+    permission_classes=[permissions.IsAuthenticated],  # Require authentication for accessing Swagger
 )
 
+# URLs
 urlpatterns = [
-    path('', dashboard, name='dashboard'),
-    path('products/', product_list, name='product_list'),
-    path('products/add/', product_add, name='product_add'),
-    path('products/edit/<int:pk>/', product_edit, name='product_edit'),
-    path('products/detail/<int:pk>/', product_detail, name='product_detail'),
-    path('product-search/', product_search, name='product_search'),
-    path('products/delete/<int:pk>/', product_delete, name='product_delete'),
-    path('graph/bar/', bar_graph, name='bar_graph'),
-    path('graph/historical/', historical_graph, name='historical_graph'),
-    path('graph/consumption/history/', historical_graph, {'model': ConsoHistory, 'template_name': 'historical_chart.html', 'display_name': 'Consumption History'}, name='consumption_history_chart'),
-    path('graph/stock/history/', historical_graph, {'model': StockHistory, 'template_name': 'historical_chart.html', 'display_name': 'Stock History'}, name='stock_history_chart'),
-    path('pdf/stock/', generate_pdf_stock, name='generate_pdf_stock'),
-    path('pdf/conso/', generate_pdf_conso, name='generate_pdf_conso'),
-    path('alerts/', alert_table, name='alert_table'),
-    path('graphs/', graph_page, name='graph_page'),
-    path('instantaneous-data/', instantaneous_data, name='instantaneous_data'),
-    path('historical-data/', historical_data, name='historical_data'),
-    path('get_column_type/', get_column_type, name='get_column_type'),
-    path('get_table_list/', get_table_list, name='get_table_list'),
-    path('get_column_list/', get_column_list, name='get_column_list'),
-    path('panel/create_shortcut/', create_shortcut, name='create_shortcut'),
-    path('panel/get_rows/', get_rows, name='get_rows'),
-
-    # API
+    path('api/token/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
+    path('api/token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
     path('api/', include(router.urls)),
-    path('api/stock-and-products/', list_stock_and_product_names, name='stock_and_products'), # COUNTS and PRODUCTS
+
+    # New API Endpoints for Dynamic Tables
+    path('api/tables/', ListTablesView.as_view(), name='list_tables'),
+    path('api/tables/<str:table_name>/columns/', ListColumnsView.as_view(), name='list_columns'),
+    path('api/tables/<str:table_name>/rows/', ListRowsView.as_view(), name='list_rows'),
+    path('api/tables/<str:table_name>/columns/<str:column_name>/rows/', ColumnRowsView.as_view(), name='column_row_list'),
+    path('api/tables/<str:table_name>/<int:object_id>/', ObjectDetailView.as_view(), name='object_detail'),
+    path('api/check-auth/', CheckAuthView.as_view(), name='check_auth'),
+    path('api/csrf-token/', csrf_token_view, name='csrf_token'),
 
     # Swagger
     re_path(r'^swagger(?P<format>\.json|\.yaml)$', schema_view.without_ui(cache_timeout=0), name='schema-json'),

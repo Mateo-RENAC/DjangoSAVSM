@@ -1,20 +1,84 @@
-"use client";
-
+// app/theme.js
 import { createTheme } from '@mui/material/styles';
-import { red } from '@mui/material/colors';
 
-const theme = createTheme({
+export const lightTheme = createTheme({
   palette: {
-    primary: {
-      main: '#0070f3',
+    mode: 'light',
+    background: {
+      default: '#f0f0f0',
     },
-    secondary: {
-      main: '#19857b',
+    text: {
+      primary: '#000000',
     },
-    error: {
-      main: red.A400,
+  },
+  components: {
+    MuiTableCell: {
+      styleOverrides: {
+        root: {
+          backgroundColor: 'var(--background-color)',
+          color: 'var(--foreground-color)',
+        },
+      },
+    },
+    MuiTextField: {
+      styleOverrides: {
+        root: {
+          backgroundColor: 'var(--background-color)',
+          color: 'var(--foreground-color)',
+          '& .MuiOutlinedInput-root': {
+            '& fieldset': {
+              borderColor: 'var(--foreground-color)',
+            },
+            '&:hover fieldset': {
+              borderColor: '#888',
+            },
+            '&.Mui-focused fieldset': {
+              borderColor: 'var(--foreground-color)',
+            },
+          },
+        },
+      },
     },
   },
 });
 
-export default theme;
+export const darkTheme = createTheme({
+  palette: {
+    mode: 'dark',
+    background: {
+      default: '#000000',
+    },
+    text: {
+      primary: '#ffffff',
+    },
+  },
+  components: {
+    MuiTableCell: {
+      styleOverrides: {
+        root: {
+          backgroundColor: 'var(--background-color)',
+          color: 'var(--foreground-color)',
+        },
+      },
+    },
+    MuiTextField: {
+      styleOverrides: {
+        root: {
+          backgroundColor: 'var(--background-color)',
+          color: 'var(--foreground-color)',
+          '& .MuiOutlinedInput-root': {
+            '& fieldset': {
+              borderColor: 'var(--foreground-color)',
+            },
+            '&:hover fieldset': {
+              borderColor: '#888',
+            },
+            '&.Mui-focused fieldset': {
+              borderColor: 'var(--foreground-color)',
+            },
+          },
+        },
+      },
+    },
+  },
+});

@@ -1,0 +1,46 @@
+/* app/styles/Slider.css
+ */
+
+.slider-wrapper {
+  width: 100%;
+  margin: 0 auto;
+  text-align: center;
+}
+
+.custom-slider {
+  height: 25px;
+  background: linear-gradient(to right, #ff7e5f, #feb47b);
+  border-radius: 10px;
+  outline: none;
+  position: relative;
+  padding: 5px;
+}
+
+.custom-thumb {
+  height: 40px;
+  width: 40px;
+  background-color: #ffffff;
+  border: 2px solid #ff7e5f;
+  border-radius: 50%;
+  cursor: grab;
+  position: absolute;
+  top: -10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: inherit;
+  z-index: 2;
+}
+
+.custom-thumb:active {
+  cursor: grabbing;
+}
+
+.custom-track {
+  background: transparent;
+}
+
+.slider-value {
+  margin-top: 5px;
+  font-size: inherit;
+}

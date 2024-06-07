@@ -6,6 +6,4 @@ start cmd /k "npm run dev"
 cd ..
 
 REM Start the Django server
-cd stock
-"../.venv\Scripts\python" manage.py runserver
-cd ..
+".venv\Scripts\activate" && python stock/manage.py runserver

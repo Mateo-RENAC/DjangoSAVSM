@@ -65,7 +65,6 @@ const GraphContainer = ({ graph, isVisible, onToggleVisibility, gap }) => {
                 border: 'none',
                 cursor: 'pointer',
                 fontSize: '16px',
-                color: '#fff'
               }}
               onClick={() => setZoomLevel(prevZoom => Math.min(2, prevZoom + 0.1))}
             >
@@ -77,7 +76,6 @@ const GraphContainer = ({ graph, isVisible, onToggleVisibility, gap }) => {
                 border: 'none',
                 cursor: 'pointer',
                 fontSize: '16px',
-                color: '#fff'
               }}
               onClick={() => setZoomLevel(prevZoom => Math.max(0.5, prevZoom - 0.1))}
             >

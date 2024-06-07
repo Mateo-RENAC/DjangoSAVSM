@@ -2,6 +2,9 @@ from django.db.models.signals import post_save, pre_save
 from django.dispatch import receiver
 from .models import Stock, StockHistory, Consumption, ConsoHistory, Order
 from django.utils import timezone
+from django.contrib.auth.models import User
+from .models import UserToken
+from rest_framework_simplejwt.tokens import RefreshToken
 import threading
 
 # Thread-local variable to store flags for recursion control
@@ -68,3 +71,24 @@ def create_stock_history(sender, instance, **kwargs):
 @receiver(post_save, sender=Consumption)
 def create_conso_history(sender, instance, **kwargs):
     ConsoHistory.objects.create(product=instance.product, date=timezone.now(), count=instance.count)
+
+
+# For user authentification in frontend
+@receiver(post_save, sender=User)
+def create_user_token(sender, instance, created, **kwargs):
+    if created:
+        refresh = RefreshToken.for_user(instance)
+        UserToken.objects.create(
+            user=instance,
+            access_token=str(refresh.access_token),
+            refresh_token=str(refresh)
+        )
+
+@receiver(post_save, sender=User)
+def save_user_token(sender, instance, **kwargs):
+    user_token, created = UserToken.objects.get_or_create(user=instance)
+    if not created:
+        refresh = RefreshToken.for_user(instance)
+        user_token.access_token = str(refresh.access_token)
+        user_token.refresh_token = str(refresh)
+        user_token.save()

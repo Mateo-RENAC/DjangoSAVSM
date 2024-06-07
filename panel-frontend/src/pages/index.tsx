@@ -1,13 +1,14 @@
 // pages/index.tsx
 import React from 'react';
-import ShortcutPanel from "@/components/ShortcutManager";
+import DataTable from '@/components/data/DataTable';
 
 const HomePage = () => {
+  console.log('Test Variable:', process.env.TEST_VARIABLE);  // Should log 'HelloWorld'
 
   return (
     <div>
         <h1>Home Page</h1>
-        <DataTable dataUrl="http://localhost:8000/panel/api/stock-and-products/"/>
+        <DataTable dataUrl="product"/>
     </div>
   );
 };
